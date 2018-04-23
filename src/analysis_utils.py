@@ -24,41 +24,28 @@ def countRibosomeCollisions(df,tRNAid,ribosomeIDList):
 #Fluitt uses "average", but really we have a poisson sampling rate where "avg" less meaningful
 #Rewrite this code to just do calculation of riboosme&tRNA count w/ 1 pass of df
 
-def countIncorrectRibosomeCollisions(df, tRNAidList, ribosomeidList):
-    df=df.sort_values(['reactantB','time'], ascending=[True,True])
-    collisionCountTot=list()
-    collisionCountDistrib=list()
-    ribosomeCountDistrib=list()
-    for ribosomeID in ribosomeidList:
-        for tRNAid in tRNAidList:
-            collisionCount =0
-            for index, row in df.iterrows():
-                if row["reactantB"]==ribosomeID:
-                    if row["reactantA"]!=tRNAid:
-                        collisionCount+=1
-                    if row["reactantA"]==tRNAid:
-                        collisionCountTot.append(collisionCount)
-                        collisionCount=0
-            collisionCountDistrib.append(collisionCountTot)
-            collisionCountTot=list()
-        ribosomeCountDistrib.append(collisionCountDistrib)
-        print(ribosomeID)
-        collisionCountDistrib=list()
-    return ribosomeCountDistrib
-    #update this method to just adding tRNA, rib. pair to a matrix in one pass.
-    #Can just check whether reacA and reacB fall in the matrix i make.
 
 def countIncorrectRibosomeCollisionsFast(df, tRNA_IDList, ribosome_IDList):
     df=df.sort_values(['reactantB','time'], ascending=[True,True])
-    IncorrectNumColMatrix=np.ones([len(tRNA_IDList),len(ribosome_IDList)])*-100
+    IncorrectNumColMatrix=np.zeros([len(tRNA_IDList),len(ribosome_IDList)])
+   
+    IncorrectCollisions_tr = list()
+    for t in range(len(tRNA_IDList)):
+        IncorrectCollisions_tr.append(list())
+        for r in range(len(ribosome_IDList)):
+            IncorrectCollisions_tr[t].append(list())
+    print(IncorrectCollisions_tr)
+
     for r_index, ribosomeID in enumerate(ribosome_IDList):
+        print(r_index)
         df_i = df.loc[df['reactantB']==ribosomeID]
-        for index, row in df_i.iterrows():
-            CollisionCount = np.zeros([len(tRNA_IDList)])
+        for index, row in df_i.iterrows():            
             for t_index, tRNAID in enumerate(tRNA_IDList):
-                if row["reactantA"]==tRNAID:
-                    IncorrectNumColMatrix[t_index, r_index]
-        print(ribosomeID)
-    return IncorrectNumColMatrix
+                if row["reactantA"]!=tRNAID:
+                    IncorrectNumColMatrix[t_index, r_index]+=1;
+                elif row["reactantA"]==tRNAID:
+                    IncorrectCollisions_tr[t_index][r_index].append(IncorrectNumColMatrix[t_index, r_index])
+                    IncorrectNumColMatrix[t_index, r_index] = 0
+    return IncorrectCollisions_tr
 
 
