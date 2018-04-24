@@ -1,5 +1,7 @@
-import pandas
+import pandas as pd
 import numpy as np
+import sys
+import math
 
 def countRibosomeCollisions(df,tRNAid,ribosomeIDList):
     df = df.sort_values(by=['reactantA'])
@@ -47,5 +49,29 @@ def countIncorrectRibosomeCollisionsFast(df, tRNA_IDList, ribosome_IDList):
                     IncorrectCollisions_tr[t_index][r_index].append(IncorrectNumColMatrix[t_index, r_index])
                     IncorrectNumColMatrix[t_index, r_index] = 0
     return IncorrectCollisions_tr
+
+
+def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalestart=-3):
+    df=df.sort_values(['time'], ascending=[True])
+    end_time = df.iloc[df.shape[0]-1]['time']
+
+    if scale=="linear":
+        time_arr = np.arange(start_time,end_time+time_interval,time_interval)
+    elif scale=="log":
+        time_arr = np.logspace(logscalestart,math.ceil(np.log10(end_time)),1+abs(logscalestart)+math.ceil(np.log10(end_time)))
+
+    timesplitdf = df.groupby(pd.cut(df["time"],time_arr))
+    groupkeys = [interval for interval, timesplitdf_i in timesplitdf]
+    timesplitdf_list = list()
+    for key in groupkeys:
+        timesplitdf_list.append(timesplitdf.get_group(key))
+
+    return timesplitdf_list
+
+
+
+
+
+
 
 
