@@ -29,7 +29,7 @@ def readSimData(path):
 
     return df
 
-def countRibosomeCollisions(df,tRNAid,ribosomeIDList):
+def countRibosomeCollisions(df,tRNAIDList,ribosomeIDList):
     """Counts the number of collisions that a single tRNA has with each ribosome from 
     a group of ribosomes provided (in a given Smoldyn reaction_log dataframe)
     
@@ -44,37 +44,25 @@ def countRibosomeCollisions(df,tRNAid,ribosomeIDList):
         timeavg_r (np array): Array containing the average time stamp at which a given tRNA collided
             with all ribosomes in ribosomeIDList
     """
-    #Sorts dataframe by tRNA id values (in acending order)
-    df = df.sort_values(by=['reactantA'])
+    #Sort the data based on ascending ribosome ID ('reactantB') and reaction timestamp ('time')
+    df=df.sort_values(['reactantB','time'], ascending=[True,True])
 
     # Create two arrays the length or # ribosome IDs to check collisions with
-    tRNACollisionCount_r =np.zeros(len(ribosomeIDList))
-    timesum_r=np.zeros(len(ribosomeIDList))
+    tRNACollisionCount_rt=np.zeros([len(ribosomeIDList),len(tRNAIDList)])
 
     #Iterate through the sorted dataframe reaction by reaction (row by row)
     for i, rxn_i in df.iterrows():
-        #If reach the end of reactions by tRNA tRNAid, then method is complete
-        if rxn_i["reactantA"] != tRNAid:
-            print("Reached tRNA ", rxn_i["reactantA"], ". Completed counting collisions between tRNA ", 
-                tRNAid, " and ribosomes ", ribosomeIDList)
-            break
-
         #Iterate through ribosomes being tracked, and for the ribosome that the tRNA collided with for the given rxn_i: 
         #1) increment collision count 2) add the timestamp at which the reaction occured to the growing sum of reaction 
         #timestamps for that ribosome
+        ribosome_i = rxn_i["reactantB"]
+        tRNA_i = rxn_i["reactantA"]
+        if tRNA_i in tRNAIDList and ribosome_i in ribosomeIDList:
+            tRNACollisionCount_rt[int(np.where(ribosomeIDList==ribosome_i)[0]),int(np.where(tRNAIDList==tRNA_i)[0])]+=1
 
-        for r_index, ribosomeID_r in enumerate(ribosomeIDList):
-            if rxn_i["reactantB"]==ribosomeID_r:
-                tRNACollisionCount_r[r_index]+=1
-                timesum_r[r_index]+=rxn_i["time"]
-
-    # Compute the time average by dividing each growing timestamp sum within timesum_r by the # of collisions the
-    # given ribosome had with the specified tRNA.
-
-    timeavg_r=np.array(timesum_r)/np.array(tRNACollisionCount_r)
-
-    return tRNACollisionCount_r, timeavg_r
-
+    #timeavg_r=np.array(timesum_r)/np.array(tRNACollisionCount_r)
+    print(tRNACollisionCount_rt)
+    return tRNACollisionCount_rt
 
 def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
     """Creates a list for each tRNA and ribosome pair possible (tRNA_t and ribosome_r)
@@ -97,15 +85,15 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
 
     #Sort the data based on ascending ribosome ID ('reactantB') and reaction timestamp ('time')
     df=df.sort_values(['reactantB','time'], ascending=[True,True])
-    IncorrectNumColMatrix_tr=np.zeros([len(tRNA_IDList),len(ribosome_IDList)])
+    IncorrectNumColMatrix_rt=np.zeros([len(ribosome_IDList),len(tRNA_IDList)])
 
     #Create a list of lists of lists (rank 3) [tRNAid, ribosomeid, collisionGapNumber]
-    IncorrectCollisions_tr = list()
-    for t in range(len(tRNA_IDList)):
-        IncorrectCollisions_tr.append(list())
-        for r in range(len(ribosome_IDList)):
-            IncorrectCollisions_tr[t].append(list())
-    print("Initial tRNA x ribosome x collisionGapNumber has shape:", np.array(IncorrectCollisions_tr).shape)
+    IncorrectCollisions_rt = list()
+    for r in range(len(ribosome_IDList)):
+        IncorrectCollisions_rt.append(list())
+        for t in range(len(tRNA_IDList)):
+            IncorrectCollisions_rt[r].append(list())
+    print("Initial tRNA x ribosome x collisionGapNumber has shape:", np.array(IncorrectCollisions_rt).shape)
 
     #Create a sub-dataframe df_r for each ribosome and iterate through each one
     for r_index, ribosomeID in enumerate(ribosome_IDList):
@@ -121,7 +109,7 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
                 #in the reaction (IncorrectNumColMatrix_tr). 
 
                 if rxn_i["reactantA"]!=tRNAID:
-                    IncorrectNumColMatrix_tr[t_index, r_index]+=1
+                    IncorrectNumColMatrix_rt[r_index, t_index]+=1
 
                 #For the tRNA_t that was involved in the reaction, save the total other tRNA-ribosome_r 
                 #collisions that occured in between this reaction and the previous reaction with tRNA_t
@@ -129,10 +117,10 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
                 #(for tRNA_t-ribosome_r) back to 0.
 
                 elif rxn_i["reactantA"]==tRNAID:
-                    IncorrectCollisions_tr[t_index][r_index].append(IncorrectNumColMatrix_tr[t_index, r_index])
-                    IncorrectNumColMatrix_tr[t_index, r_index] = 0
+                    IncorrectCollisions_rt[r_index][t_index].append(IncorrectNumColMatrix_rt[r_index, t_index])
+                    IncorrectNumColMatrix_rt[r_index, t_index] = 0
 
-    return IncorrectCollisions_tr
+    return IncorrectCollisions_rt
 
 
 def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalestart=-3):
@@ -176,8 +164,11 @@ def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalest
 
     return timesplitdf_list
 
+def analyze(df, countRibosomeCollisions=True, countIncorrectRibosomeCollisions=True):
+    pass
 
-
+#how do the 2 most "different" tRNAs (across histogram for all 3 ribosomes) -- create a calculation
+#algorithm for this, quantitatively differ/differ when visualized for the 2 diff ribosomes?
 
 
 
