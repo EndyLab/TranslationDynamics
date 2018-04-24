@@ -33,8 +33,6 @@ color aa black
 display_size tRNAsynth(all) tRNAsynth_RAD
 color tRNAsynth orange
 
-
-
 graphics opengl_good
 frame_thickness 1  
 #tiff_name crowdimages/image

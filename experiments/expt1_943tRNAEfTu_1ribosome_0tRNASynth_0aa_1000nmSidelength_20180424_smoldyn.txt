@@ -28,20 +28,20 @@ frame_thickness 1
 #tiff_iter 5
 #tiff_max 200
 
-reaction rxn1 tRNA + tRNA -> tRNA + tRNA
-binding_radius rxn1 tRNA_RAD+tRNA_RAD
-product_placement rxn1 bounce
-reaction_serialnum rxn1 r1 + r2
+#reaction rxn1 tRNA + tRNA -> tRNA + tRNA
+#binding_radius rxn1 tRNA_RAD+tRNA_RAD
+#product_placement rxn1 bounce
+#reaction_serialnum rxn1 r1 + r2
 
 reaction rxn2 tRNA + ribosome -> tRNA + ribosome
 binding_radius rxn2 tRNA_RAD
 product_placement rxn2 bounce 4*(tRNA_RAD+ribosome_RAD)
 reaction_serialnum rxn2 r1 + r2
 
-reaction rxn3 ribosome + ribosome -> ribosome + ribosome
-binding_radius rxn3 ribosome_RAD+ribosome_RAD
-product_placement rxn3 bounce
-reaction_serialnum rxn3 r1 + r2
+#reaction rxn3 ribosome + ribosome -> ribosome + ribosome
+#binding_radius rxn3 ribosome_RAD+ribosome_RAD
+#product_placement rxn3 bounce
+#reaction_serialnum rxn3 r1 + r2
 
 mol 943 tRNA u u u
 mol 1 ribosome u u u
@@ -52,8 +52,8 @@ tiff_max 10
 
 graphic_iter 1e3
 
-output_file 2molrxnlog.xls
-reaction_log 2molrxnlog.xls rxn2 all
+output_file expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424.xls
+reaction_log expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424.xls rxn2 all
 
 text_display time
 

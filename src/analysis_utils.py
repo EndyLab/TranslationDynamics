@@ -24,7 +24,7 @@ def readSimData(path):
             productA: Gives the id of the first product defined (usually same as reactant A)
             productB: Gives the id of the second product defined (usually same as reactant B)
     """
-    df = pandas.read_csv(path,sep=" ")
+    df = pd.read_csv(path,sep=" ")
     df.columns=["time","rxn","x","y","z","reactantA","reactantB","productA","productB"]
 
     return df
