@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import sys
 import math
+import pickle as pkl
 
 
 def readSimData(path):
@@ -164,8 +165,16 @@ def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalest
 
     return timesplitdf_list
 
-def analyze(df, countRibosomeCollisions=True, countIncorrectRibosomeCollisions=True):
-    pass
+
+def analyze(path, countRibosomeCollisionsMethod=True, countIncorrectRibosomeCollisionsMethod=True,tRNA_range=-1,rib_range=-1):
+    df= readSimData(path)
+    if(tRNA_range==-1):
+        tRNA_range_arr=np.arange(df["reactantA"].min(),df["reactantA"].max()+1)
+    if(rib_range==-1):
+        rib_range_arr=np.arange(df["reactantB"].min(),df["reactantB"].max()+1)
+    tRNACollisionCount_rt=countRibosomeCollisions(df, tRNA_range_arr,rib_range_arr)
+    incorrectCollisions_rt=countIncorrectRibosomeCollisions(df, tRNA_range_arr,rib_range_arr)
+    pkl.dump([tRNACollisionCount_rt,incorrectCollisions_rt],open(path+".p","wb"))
 
 #how do the 2 most "different" tRNAs (across histogram for all 3 ribosomes) -- create a calculation
 #algorithm for this, quantitatively differ/differ when visualized for the 2 diff ribosomes?
