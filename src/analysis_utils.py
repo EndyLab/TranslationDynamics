@@ -50,7 +50,7 @@ def countRibosomeCollisions(df,tRNAIDList,ribosomeIDList):
 
     # Create two arrays the length or # ribosome IDs to check collisions with
     tRNACollisionCount_rt=np.zeros([len(ribosomeIDList),len(tRNAIDList)])
-
+    print("Computing tRNA collision count [rib,tRNA]: "+str(tRNACollisionCount_rt.shape))
     #Iterate through the sorted dataframe reaction by reaction (row by row)
     for i, rxn_i in df.iterrows():
         #Iterate through ribosomes being tracked, and for the ribosome that the tRNA collided with for the given rxn_i: 
@@ -61,8 +61,7 @@ def countRibosomeCollisions(df,tRNAIDList,ribosomeIDList):
         if tRNA_i in tRNAIDList and ribosome_i in ribosomeIDList:
             tRNACollisionCount_rt[int(np.where(ribosomeIDList==ribosome_i)[0]),int(np.where(tRNAIDList==tRNA_i)[0])]+=1
 
-    #timeavg_r=np.array(timesum_r)/np.array(tRNACollisionCount_r)
-    print(tRNACollisionCount_rt)
+    #print(tRNACollisionCount_rt)
     return tRNACollisionCount_rt
 
 def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
@@ -94,11 +93,10 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
         IncorrectCollisions_rt.append(list())
         for t in range(len(tRNA_IDList)):
             IncorrectCollisions_rt[r].append(list())
-    print("Initial tRNA x ribosome x collisionGapNumber has shape:", np.array(IncorrectCollisions_rt).shape)
-
+    print("Initial ribosome x tRNA x collisionGapNumber has shape:", np.array(IncorrectCollisions_rt).shape)
     #Create a sub-dataframe df_r for each ribosome and iterate through each one
     for r_index, ribosomeID in enumerate(ribosome_IDList):
-        print("Currently processing ribosome #",r_index)
+        #print("Currently processing ribosome #",r_index)
         df_r = df.loc[df['reactantB']==ribosomeID]
 
         #Iterate through each ribosome sub dataframe
@@ -124,7 +122,7 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
     return IncorrectCollisions_rt
 
 
-def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalestart=-3):
+def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalestart=-4):
     """Splits a given Smoldyn reaction_log dataframe into a list of dataframes each with reactions
     that occured between given timestamps. 
     
@@ -174,7 +172,7 @@ def analyze(path, countRibosomeCollisionsMethod=True, countIncorrectRibosomeColl
         rib_range_arr=np.arange(df["reactantB"].min(),df["reactantB"].max()+1)
     tRNACollisionCount_rt=countRibosomeCollisions(df, tRNA_range_arr,rib_range_arr)
     incorrectCollisions_rt=countIncorrectRibosomeCollisions(df, tRNA_range_arr,rib_range_arr)
-    pkl.dump([tRNACollisionCount_rt,incorrectCollisions_rt],open(path+".p","wb"))
+    pkl.dump([tRNACollisionCount_rt,incorrectCollisions_rt],open(path[:-4]+".p","wb"))
 
 #how do the 2 most "different" tRNAs (across histogram for all 3 ribosomes) -- create a calculation
 #algorithm for this, quantitatively differ/differ when visualized for the 2 diff ribosomes?

@@ -12,7 +12,7 @@ define D_aa 1061
 #random_seed 1000
 time_start 0
 time_stop 0.1
-time_step 1e-9 #Want RMSD = sqrt(2tD) = sqrt(2) *10^-4µm to be ~10x? smaller than RAD (1.2nm here)
+time_step 1e-8 #Want RMSD = sqrt(2tD) = sqrt(2) *10^-4µm to be ~10x? smaller than RAD (1.2nm here)
 
 dim 3
 boundaries 0 0 side_len p #r is for reflective, p for periodic
@@ -94,8 +94,8 @@ tiff_max 10
 
 graphic_iter 1
 
-output_file AM4S_expt9_47tRNAEfTuEfTu7ribosome_v4.xls
-reaction_log AM4S_expt9_47tRNAEfTuEfTu7ribosome_v4.xls rxn2 all
+output_file data/expt9_47tRNAEfTu_7ribosome_0tRNASynth_863aa_85nmSidelength_20180424.xls
+reaction_log data/expt9_47tRNAEfTu_7ribosome_0tRNASynth_863aa_85nmSidelength_20180424.xls rxn2 all
 
 text_display time
 
