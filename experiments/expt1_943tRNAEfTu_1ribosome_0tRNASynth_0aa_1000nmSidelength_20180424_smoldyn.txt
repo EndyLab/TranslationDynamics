@@ -52,8 +52,8 @@ tiff_max 10
 
 graphic_iter 1e3
 
-output_file expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424.xls
-reaction_log expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424.xls rxn2 all
+output_file expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424v1.xls
+reaction_log expt1_943tRNAEfTu_1ribosome_0tRNASynth_0aa_1000nmSidelength_20180424v1.xls rxn2 all
 
 text_display time
 

@@ -1,18 +1,18 @@
 define side_len 0.085
-define tRNAEfTu_RAD 0.0075
-define ribosome_RAD 0.012
+define tRNAEfTu_RAD 0.00575
+define ribosome_RAD 0.011
 define tRNAsynth_RAD 0.0025 
-define aa_RAD 0.00031 
+define aa_RAD 0.00031
  
-define D_tRNAEfTu 43 #Diffusion coefficient µm^2/s
+define D_tRNAEfTu 57 #Diffusion coefficient µm^2/s
 define D_ribosome 0.04 #Diffusion coefficient µm^2/s
 define D_tRNAsynth 132
 define D_aa 1061
 
 #random_seed 1000
 time_start 0
-time_stop 0.1
-time_step 1e-8 #Want RMSD = sqrt(2tD) = sqrt(2) *10^-4µm to be ~10x? smaller than RAD (1.2nm here)
+time_stop 0.06
+time_step 1e-9 #Want RMSD = sqrt(6tD to be ~10x? smaller than RAD (1.2nm here)
 
 dim 3
 boundaries 0 0 side_len p #r is for reflective, p for periodic
@@ -20,10 +20,16 @@ boundaries 1 0 side_len p
 boundaries 2 0 side_len p
 
 species tRNAEfTu ribosome tRNAsynth aa
+mol 195 tRNAEfTu u u u
+mol 30 ribosome u u u
+mol 34 tRNAsynth u u u 
+mol 0 aa u u u 
+
 difc tRNAEfTu(all) D_tRNAEfTu
 difc ribosome(all) D_ribosome
 difc aa(all) D_aa
 difc tRNAsynth(all) D_tRNAsynth 
+
 display_size tRNAEfTu(all) tRNAEfTu_RAD
 color tRNAEfTu(all) green
 display_size ribosome(all) ribosome_RAD
@@ -82,21 +88,15 @@ reaction rxn10 aa + aa -> aa + aa
 binding_radius rxn10 aa_RAD+aa_RAD
 product_placement rxn10 bounce
 
-mol 47 tRNAEfTu u u u
-mol 7 ribosome u u u
-mol 863 aa u u u 
-mol 8 tRNAsynth u u u 
-
 tiff_iter 1e5
 tiff_name movie/2molecules
 tiff_max 10
 
-graphic_iter 1
+graphic_iter 1e1
 
-output_file data/expt10_47tRNAEfTu_7ribosome_8tRNASynth_863aa_85nmSidelength_20180424.xls
-reaction_log data/expt10_47tRNAEfTu_7ribosome_8tRNASynth_863aa_85nmSidelength_20180424.xls rxn2 all
+#output_file data/expt25_195tRNAEfTu_30ribosome_34tRNASynth_0aa_85nmSidelength_20180501.xls
+#reaction_log data/expt25_195tRNAEfTu_30ribosome_34tRNASynth_0aa_85nmSidelength_20180501.xls rxn2 all
 
 text_display time
 
 end_file
-

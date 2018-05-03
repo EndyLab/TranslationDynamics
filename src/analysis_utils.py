@@ -42,8 +42,6 @@ def countRibosomeCollisions(df,tRNAIDList,ribosomeIDList):
     Returns:
         tRNACollisionCount_r (np array): Array containing number of collisions between a given tRNA
             and all ribosomes in ribosomeIDList
-        timeavg_r (np array): Array containing the average time stamp at which a given tRNA collided
-            with all ribosomes in ribosomeIDList
     """
     #Sort the data based on ascending ribosome ID ('reactantB') and reaction timestamp ('time')
     df=df.sort_values(['reactantB','time'], ascending=[True,True])
@@ -52,19 +50,27 @@ def countRibosomeCollisions(df,tRNAIDList,ribosomeIDList):
     tRNACollisionCount_rt=np.zeros([len(ribosomeIDList),len(tRNAIDList)])
     print("Computing tRNA collision count [rib,tRNA]: "+str(tRNACollisionCount_rt.shape))
     #Iterate through the sorted dataframe reaction by reaction (row by row)
-    for i, rxn_i in df.iterrows():
+    df_r = df.loc[df['reactantB'].isin(ribosomeIDList)]
+    df_r=df_r.sort_values(['reactantB','time'], ascending=[True,True])
+
+    prevtRNAID = -1;
+    prevRibID = -1
+    for i, rxn_i in df_r.iterrows():
         #Iterate through ribosomes being tracked, and for the ribosome that the tRNA collided with for the given rxn_i: 
-        #1) increment collision count 2) add the timestamp at which the reaction occured to the growing sum of reaction 
-        #timestamps for that ribosome
+        #1) increment collision count
+        
         ribosome_i = rxn_i["reactantB"]
         tRNA_i = rxn_i["reactantA"]
-        if tRNA_i in tRNAIDList and ribosome_i in ribosomeIDList:
+        if(tRNA_i in tRNAIDList and tRNA_i != prevtRNAID and ribosome_i == prevRibID):
             tRNACollisionCount_rt[int(np.where(ribosomeIDList==ribosome_i)[0]),int(np.where(tRNAIDList==tRNA_i)[0])]+=1
+        prevtRNAID = tRNA_i
+        prevRibID = ribosome_i
+
 
     #print(tRNACollisionCount_rt)
     return tRNACollisionCount_rt
 
-def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
+def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList, tRNAInclusionList=np.array([])):
     """Creates a list for each tRNA and ribosome pair possible (tRNA_t and ribosome_r)
     of the # of time other tRNAs collided with the ribosome_r in between collisions of 
     the specified tRNA_t and ribosome_r (in a given Smoldyn reaction_log dataframe).
@@ -94,30 +100,38 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList):
         for t in range(len(tRNA_IDList)):
             IncorrectCollisions_rt[r].append(list())
     print("Initial ribosome x tRNA x collisionGapNumber has shape:", np.array(IncorrectCollisions_rt).shape)
+
+    if tRNAInclusionList.shape[0] == 0:
+        tRNAInclusionList = np.arange(df["reactantA"].min(),df["reactantA"].max()+1)
+
     #Create a sub-dataframe df_r for each ribosome and iterate through each one
     for r_index, ribosomeID in enumerate(ribosome_IDList):
         #print("Currently processing ribosome #",r_index)
         df_r = df.loc[df['reactantB']==ribosomeID]
-
+        prevtRNAID=-1;
         #Iterate through each ribosome sub dataframe
         for i, rxn_i in df_r.iterrows():   
 
-            #For each reaction, iterate through each tRNA. 
-            for t_index, tRNAID in enumerate(tRNA_IDList):
-                #Increment the incorrect collision count for each tRNA that wasn't involved 
-                #in the reaction (IncorrectNumColMatrix_tr). 
+            #Check to ensure the reactant is being considered as a tRNA & Check to see if the reactant is a repeat reactant, in which case ignore. 
+            # If reactant is previous reactant then keeping prev rxn var same is ok. If reactantA not on tRNA list, then keeping prev rxn var same also ok.
+            if rxn_i["reactantA"] in tRNAInclusionList and rxn_i["reactantA"]!=prevtRNAID:              
+                for t_index, tRNAID in enumerate(tRNA_IDList):    #For each reaction, iterate through each tRNA. 
+                    #Increment the incorrect collision count for each tRNA that wasn't involved 
+                    #in the reaction (IncorrectNumColMatrix_tr). 
 
-                if rxn_i["reactantA"]!=tRNAID:
-                    IncorrectNumColMatrix_rt[r_index, t_index]+=1
+                    if rxn_i["reactantA"]!=tRNAID: #and (tRNAInclusionList.size==1 or rxn_i["reactantA"] in tRNAInclusionList):
+                        IncorrectNumColMatrix_rt[r_index, t_index]+=1
 
-                #For the tRNA_t that was involved in the reaction, save the total other tRNA-ribosome_r 
-                #collisions that occured in between this reaction and the previous reaction with tRNA_t
-                #and ribosome_r in IncorrectCollisions_tr, and then reset the incorrect collision count
-                #(for tRNA_t-ribosome_r) back to 0.
+                    #For the tRNA_t that was involved in the reaction, save the total other tRNA-ribosome_r 
+                    #collisions that occured in between this reaction and the previous reaction with tRNA_t
+                    #and ribosome_r in IncorrectCollisions_tr, and then reset the incorrect collision count
+                    #(for tRNA_t-ribosome_r) back to 0.
 
-                elif rxn_i["reactantA"]==tRNAID:
-                    IncorrectCollisions_rt[r_index][t_index].append(IncorrectNumColMatrix_rt[r_index, t_index])
-                    IncorrectNumColMatrix_rt[r_index, t_index] = 0
+                    elif rxn_i["reactantA"]==tRNAID:
+                        IncorrectCollisions_rt[r_index][t_index].append(IncorrectNumColMatrix_rt[r_index, t_index])
+                        IncorrectNumColMatrix_rt[r_index, t_index] = 0
+                
+                prevtRNAID = rxn_i["reactantA"]
 
     return IncorrectCollisions_rt
 
