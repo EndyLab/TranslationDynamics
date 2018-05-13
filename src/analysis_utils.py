@@ -114,7 +114,7 @@ def countIncorrectRibosomeCollisions(df, tRNA_IDList, ribosome_IDList, tRNAInclu
 
             #Check to ensure the reactant is being considered as a tRNA & Check to see if the reactant is a repeat reactant, in which case ignore. 
             # If reactant is previous reactant then keeping prev rxn var same is ok. If reactantA not on tRNA list, then keeping prev rxn var same also ok.
-            if rxn_i["reactantA"] in tRNAInclusionList and rxn_i["reactantA"]!=prevtRNAID:              
+            if rxn_i["reactantA"] in tRNAInclusionList: #and rxn_i["reactantA"]!=prevtRNAID:              
                 for t_index, tRNAID in enumerate(tRNA_IDList):    #For each reaction, iterate through each tRNA. 
                     #Increment the incorrect collision count for each tRNA that wasn't involved 
                     #in the reaction (IncorrectNumColMatrix_tr). 
