@@ -177,6 +177,7 @@ def timeSplitter(df, start_time=0, time_interval=0.01, scale="linear",logscalest
 
     return timesplitdf_list
 
+def 
 
 def analyze(path, countRibosomeCollisionsMethod=True, countIncorrectRibosomeCollisionsMethod=True,tRNA_range=-1,rib_range=-1):
     df= readSimData(path)
