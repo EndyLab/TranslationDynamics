@@ -31,13 +31,14 @@ difc aa(all) D_aa
 difc tRNAsynth(all) D_tRNAsynth 
 
 display_size tRNAEfTu(all) tRNAEfTu_RAD
-color tRNAEfTu(all) green
+color tRNAEfTu(all) orange
 display_size ribosome(all) ribosome_RAD
-color ribosome(all) red
+color ribosome(all) blue
 display_size aa(all) aa_RAD
 color aa black
 display_size tRNAsynth(all) tRNAsynth_RAD
-color tRNAsynth orange
+color tRNAsynth purple
+
 
 graphics opengl_good
 frame_thickness 1  
