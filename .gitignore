@@ -4,9 +4,8 @@ src/AWS_scripts/AWS_start.sh
 calculations/OsmoticP/data/
 results/Animations/
 prikey.rtf
-calculations/
 data/
 documentation/
 expts/
-results/
-src/
+calculations/OsmoticP/data/
+results/Animations_old/
