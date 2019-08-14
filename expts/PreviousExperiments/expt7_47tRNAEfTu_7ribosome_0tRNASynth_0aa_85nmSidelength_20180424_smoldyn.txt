@@ -1,0 +1,61 @@
+define side_len 0.085
+define tRNAEfTu_RAD 0.0075
+define ribosome_RAD 0.012 
+define D_tRNAEfTu 43 #Diffusion coefficient µm^2/s
+define D_ribosome 0.04 #Diffusion coefficient µm^2/s
+
+#random_seed 1000
+time_start 0
+time_stop 0.1
+time_step 1e-8 #Want RMSD = sqrt(2tD) = sqrt(2) *10^-4µm to be ~10x? smaller than RAD (1.2nm here)
+
+dim 3
+boundaries 0 0 side_len r #r is for reflective, p for periodic
+boundaries 1 0 side_len r
+boundaries 2 0 side_len r
+
+species tRNAEfTu ribosome
+difc tRNAEfTu(all) D_tRNAEfTu
+difc ribosome(all) D_ribosome
+display_size tRNAEfTu(all) tRNAEfTu_RAD
+color tRNAEfTu(all) green
+display_size ribosome(all) ribosome_RAD
+color ribosome(all) red
+
+graphics opengl_good
+frame_thickness 1  
+#tiff_name crowdimages/image
+#tiff_iter 5
+#tiff_max 200
+
+reaction rxn1 tRNAEfTu + tRNAEfTu -> tRNAEfTu + tRNAEfTu
+binding_radius rxn1 tRNAEfTu_RAD+tRNAEfTu_RAD
+product_placement rxn1 bounce
+reaction_serialnum rxn1 r1 + r2
+
+reaction rxn2 tRNAEfTu + ribosome -> tRNAEfTu + ribosome
+binding_radius rxn2 tRNAEfTu_RAD
+product_placement rxn2 bounce
+reaction_serialnum rxn2 r1 + r2
+
+reaction rxn3 ribosome + ribosome -> ribosome + ribosome
+binding_radius rxn3 ribosome_RAD+ribosome_RAD
+product_placement rxn3 bounce
+reaction_serialnum rxn3 r1 + r2
+
+mol 47 tRNAEfTu u u u
+mol 7 ribosome u u u
+
+tiff_iter 1e5
+tiff_name movie/2molecules
+tiff_max 10
+
+graphic_iter 1e3
+
+output_file AM4S_expt6_47tRNAEfTuEfTu7ribosome.xls
+reaction_log AM4S_expt6_47tRNAEfTuEfTu7ribosome.xls rxn2 all
+
+text_display time
+
+end_file
+
