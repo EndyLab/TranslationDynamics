@@ -17,7 +17,7 @@ mkdir $DATA_PATH
 while read p || [ -n "$p" ] #Or conditional needed to make sure last line not skipped in reading 
 #for i in `aws ec2 describe-instances | grep -i PublicIpAddress  | awk '{ print $2}' | cut -d',' -f1| sed -e 's/"//g'| tr . -`
 do
-	sleep 4
+	sleep 2
 	./AWS_scriptCopy_sub.sh ${ipArray[$i]} $p $KPATH $dateformat &
 	#ssh -o StrictHostKeyChecking=no -i $KPATH ec2-user@ec2-${ipArray[$i]}.us-west-2.compute.amazonaws.com -f mkdir /home/ec2-user/translation/
 	#sleep 0.1

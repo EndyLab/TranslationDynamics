@@ -4,48 +4,43 @@ define tRNAEfTu_RAD 0.0059 #radius in micrometers
 define ribosome_RAD 0.0130
 define crowder_RAD 0.0020
  
-random_seed _seed_
+random_seed Z_seed_
 time_start 0
-time_stop _simtime_
-time_step _ts_ 
+time_stop Z_simtime_
+time_step Z_ts_ 
 
 dim 3
-boundaries 0 0 _side_len_ p #r is for reflective, p for periodic
-boundaries 1 0 _side_len_ p
-boundaries 2 0 _side_len_ p
+boundaries 0 0 Z_side_len_ p #r is for reflective, p for periodic
+boundaries 1 0 Z_side_len_ p
+boundaries 2 0 Z_side_len_ p
 
 #Order of species labels determined by this order
-species tRNA_cog tRNA_nr tRNA_non crowder ribosome ribosome_cog ribosome_nr ribosome_non ribosome_suc ribosome_inac ribosome_noreac tRNA_uni 
-species ribosome_non_uni ribosome_cog_uni ribosome_suc_uni ribosome_non_uni_1 ribosome_wait ribosome_wait_cogtRNA-noncogrib 
-species ribosome_wait_noncogtRNA-cogrib ribosome_wait_cogtRNA-cogrib
+species tRNA_cog tRNA_nr tRNA_non crowder ribosome ribosome_cog ribosome_nr ribosome_non ribosome_suc ribosome_inac ribosome_noreac tRNA_uni ribosome_non_uni ribosome_cog_uni ribosome_suc_uni ribosome_non_uni_1 ribosome_wait
 
-mol _ribosome_NUM_ ribosome u u u 
-mol _tRNA_cog_NUM_ tRNA_cog u u u
-mol _tRNA_nr_NUM_ tRNA_nr u u u
-mol _tRNA_non_NUM_ tRNA_non u u u
-mol _crowder_NUM_ crowder u u u
-mol _ribosome_cog_NUM_ ribosome_cog u u u
-mol _ribosome_nr_NUM_ ribosome_nr u u u
-mol _ribosome_non_NUM_ ribosome_non u u u
-mol _ribosome_suc_NUM_ ribosome_suc u u u
-mol _ribosome_inac_NUM_ ribosome_inac u u u
-mol _ribosome_noreac_NUM_ ribosome_noreac u u u
-mol _tRNA_uni_NUM_ tRNA_uni u u u
+mol Z_ribosome_NUM_ ribosome u u u 
+mol Z_tRNA_cog_NUM_ tRNA_cog u u u
+mol Z_tRNA_nr_NUM_ tRNA_nr u u u
+mol Z_tRNA_non_NUM_ tRNA_non u u u
+mol Z_crowder_NUM_ crowder u u u
+mol Z_ribosome_cog_NUM_ ribosome_cog u u u
+mol Z_ribosome_nr_NUM_ ribosome_nr u u u
+mol Z_ribosome_non_NUM_ ribosome_non u u u
+mol Z_ribosome_suc_NUM_ ribosome_suc u u u
+mol Z_ribosome_inac_NUM_ ribosome_inac u u u
+mol Z_ribosome_noreac_NUM_ ribosome_noreac u u u
+mol Z_tRNA_uni_NUM_ tRNA_uni u u u
 mol 0 ribosome_non_uni u u u  
 mol 0 ribosome_cog_uni u u u
 mol 0 ribosome_suc_uni u u u
 mol 0 ribosome_non_uni_1 u u u
 mol 0 ribosome_wait u u u
-mol 0 ribosome_wait_cogtRNA-noncogrib u u u
-mol 0 ribosome_wait_noncogtRNA-cogrib u u u
-mol 0 ribosome_wait_cogtRNA-cogrib u u u
 
 accuracy 10
 #molperbox 10000
 
-difc tRNA*(all) _D_tRNAEfTu_
-difc ribosome*(all) _D_ribosome_
-difc crowder(all) _D_crowder_ 
+difc tRNA*(all) Z_D_tRNAEfTu_
+difc ribosome*(all) Z_D_ribosome_
+difc crowder(all) Z_D_crowder_ 
 
 display_size tRNA_cog(all) tRNAEfTu_RAD
 color tRNA_cog(all) green
@@ -77,8 +72,8 @@ color ribosome_inac(all) black
 display_size ribosome_noreac(all) ribosome_RAD
 color ribosome_noreac(all) grey
 
-display_size ribosome_wait*(all) ribosome_RAD
-color ribosome_wait*(all) orange
+display_size ribosome_wait(all) ribosome_RAD
+color ribosome_wait(all) orange
 
 
 graphics opengl_good
@@ -115,11 +110,9 @@ reaction rxn6 tRNA_non + ribosome -> ribosome_non
 binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn6 r1
 
-reaction rxn7 ribosome_non -> ribosome_wait + tRNA_non 71700
+reaction rxn7 ribosome_non -> ribosome + tRNA_non 71700
 product_placement rxn7 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn7 new + r1 
-
-reaction rxn30 ribosome_wait -> ribosome 71700
 
 reaction rxn8 tRNA_nr + ribosome -> ribosome_nr
 binding_radius rxn8 tRNAEfTu_RAD+ribosome_RAD
@@ -154,11 +147,9 @@ reaction_serialnum rxn17 r1
 reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 147500
 
 ##Unsuccessful cognate reaction
-reaction rxn19 ribosome_cog_uni -> ribosome_wait_cogtRNA-cogrib + tRNA_uni 71700
+reaction rxn19 ribosome_cog_uni -> ribosome_noreac + tRNA_uni 71700
 product_placement rxn19 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn19 new + r1
-
-reaction rxn31 ribosome_wait_cogtRNA-cogrib -> ribosome_noreac 71700
 
 ##Incorporation after successful cognate reaction
 reaction rxn20 ribosome_suc_uni -> ribosome_inac 9600
@@ -168,21 +159,17 @@ reaction rxn21 tRNA_uni + ribosome -> ribosome_non_uni
 binding_radius rxn21 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn21 r1
 
-reaction rxn22 ribosome_non_uni -> ribosome_wait_cogtRNA-noncogrib + tRNA_uni 71700
+reaction rxn22 ribosome_non_uni -> ribosome + tRNA_uni 71700
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 new + r1
-
-reaction rxn32 ribosome_wait_cogtRNA-noncogrib -> ribosome 71700
 
 reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
 binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn23 r1
 
-reaction rxn24 ribosome_non_uni_1 -> ribosome_wait_noncogtRNA-cogrib + tRNA_non 71700
+reaction rxn24 ribosome_non_uni_1 -> ribosome_noreac + tRNA_non 71700
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn24 new + r1 
-
-reaction rxn33 ribosome_wait_noncogtRNA-cogrib -> ribosome_noreac 71700
 
 ###tRNA bounce
 reaction rxn16  tRNA* + ribosome_noreac -> tRNA* + ribosome_noreac 
@@ -204,35 +191,35 @@ tiff_name movie/translationSnap
 tiff_max 1
 graphic_iter 1
 
-output_file _outputSimtime_ _outputReactions_ #_outputMolPos_
-#reaction_log _outputReactions_ rxn6 all
-#reaction_log _outputReactions_ rxn7 all
-#reaction_log _outputReactions_ rxn8 all
-#reaction_log _outputReactions_ rxn9 all
-#reaction_log _outputReactions_ rxn10 all
-#reaction_log _outputReactions_ rxn11 all
-#reaction_log _outputReactions_ rxn12 all
-#reaction_log _outputReactions_ rxn13 all
-#reaction_log _outputReactions_ rxn15 all
+output_file Z_outputSimtime_ Z_outputReactions_ #Z_outputMolPos_
+#reaction_log Z_outputReactions_ rxn6 all
+#reaction_log Z_outputReactions_ rxn7 all
+#reaction_log Z_outputReactions_ rxn8 all
+#reaction_log Z_outputReactions_ rxn9 all
+#reaction_log Z_outputReactions_ rxn10 all
+#reaction_log Z_outputReactions_ rxn11 all
+#reaction_log Z_outputReactions_ rxn12 all
+#reaction_log Z_outputReactions_ rxn13 all
+#reaction_log Z_outputReactions_ rxn15 all
 
-reaction_log _outputReactions_ rxn17 all
-reaction_log _outputReactions_ rxn18 all
-reaction_log _outputReactions_ rxn19 all
-reaction_log _outputReactions_ rxn20 all
-reaction_log _outputReactions_ rxn21 all
-reaction_log _outputReactions_ rxn22 all
+reaction_log Z_outputReactions_ rxn17 all
+reaction_log Z_outputReactions_ rxn18 all
+reaction_log Z_outputReactions_ rxn19 all
+reaction_log Z_outputReactions_ rxn20 all
+reaction_log Z_outputReactions_ rxn21 all
+reaction_log Z_outputReactions_ rxn22 all
 
-#reaction_log _outputReactions_ rxn1 all
-#reaction_log _outputReactions_ rxn2 all
-#reaction_log _outputReactions_ rxn3 all
-#reaction_log _outputReactions_ rxn4 all
-#reaction_log _outputReactions_ rxn5 all
-#reaction_log _outputReactions_ rxn14 all
-#reaction_log _outputReactions_ rxn16 all
+#reaction_log Z_outputReactions_ rxn1 all
+#reaction_log Z_outputReactions_ rxn2 all
+#reaction_log Z_outputReactions_ rxn3 all
+#reaction_log Z_outputReactions_ rxn4 all
+#reaction_log Z_outputReactions_ rxn5 all
+#reaction_log Z_outputReactions_ rxn14 all
+#reaction_log Z_outputReactions_ rxn16 all
 
-#cmd i 0 _simtime_ _molPosTS_ listmols2 _outputMolPos_
-cmd i _simtime_ _simtime_ _simtime_ executiontime _outputSimtime_
-cmd i 0 _simtime_ _molPosTS_ ifmore ribosome_inac(all) 0 stop
+#cmd i 0 Z_simtime_ Z_molPosTS_ listmols2 Z_outputMolPos_
+cmd i Z_simtime_ Z_simtime_ Z_simtime_ executiontime Z_outputSimtime_
+cmd i 0 Z_simtime_ Z_molPosTS_ ifmore ribosome_inac(all) 0 stop
 text_display time
 
 end_file

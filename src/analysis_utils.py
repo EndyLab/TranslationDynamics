@@ -272,10 +272,15 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
                 df=df.loc[df['rxn'].isin(["rxn17","rxn18","rxn19","rxn20","rxn21","rxn22","rxn26"])]
                 df=df.loc[df['time']<simtime]
+
                 ##Gets the id of which cognate tRNA succesfully bound to ribosomes (needed in cases where more than one cognate tRNA in voxel)
-                df_succ_tRNA_id = df.loc[df['rxn'] == 'rxn18']['reactantA'].values[0]
-                
-                df=df[df['reactantA']==df_succ_tRNA_id]
+                df_succ_tRNA_id = int(str(df.loc[df['rxn'] == 'rxn18']['reactantA'].values[0]).split('.')[0])
+#                print(type(df_succ_tRNA_id))
+#                print(str(df_succ_tRNA_id).split('.')[0])
+                #print(df['reactantA'].apply(str).str.split('.').str[0].apply(int))
+                df=df[df['reactantA'].apply(str).str.split('.').str[0].apply(int)==df_succ_tRNA_id]
+
+
                 df=df[['time','rxn']]
 
 
