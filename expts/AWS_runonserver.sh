@@ -1,6 +1,6 @@
 mkdir "/home/ec2-user/translation/data"
 mkdir "/home/ec2-user/translation/blahhh"
-smoldyn /home/ec2-user/translation/translation.txt --define experiment=$2 -wt
+smoldyn /home/ec2-user/translation/translation.txt --define experiment=$2 -wtq
 while [ "$( pgrep -fl smoldyn)" ]; #if smoldyn isn't running on the instance
 do
 	sleep 5

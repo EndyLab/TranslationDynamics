@@ -30,6 +30,7 @@ do
 
 #Ignores Host Key Checking to make simultaneous parallel execution possible without ssh warnings.
 done < $EXPLIST_PATH
+sleep 60;
 cp -r $EXPERIMENT_PATH/expt_* $DATA_PATH #Move all experiments into the data folder
 cp $EXPERIMENT_PATH/output* $DATA_PATH #Move the output_list from experiment folder into data folder
 cp $EXPERIMENT_PATH/translation* $DATA_PATH #Copy the smoldyn translation.txt to data folder
