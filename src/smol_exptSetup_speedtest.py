@@ -10,9 +10,10 @@ import datetime
 import numpy as np
 
 
-_tRNA_cog_NUM_ = 0
+#_side_len_ = 0.0677*1/0.0059# diameter 100 nm
+_tRNA_cog_NUM_ = 42
 _tRNA_nr_NUM_ = 0
-_tRNA_non_NUM_ = 41
+_tRNA_non_NUM_ = 0
 _crowder_NUM_ = 0
 _ribosome_NUM_ = 0
 _ribosome_cog_NUM_ =0
@@ -20,10 +21,11 @@ _ribosome_nr_NUM_ = 0
 _ribosome_non_NUM_ = 0
 _ribosome_suc_NUM_ = 0
 _ribosome_inac_NUM_ = 0
-_ribosome_noreac_NUM_ = 1
-_tRNA_uni_NUM_ = 1
+_ribosome_noreac_NUM_ = 0
+_tRNA_uni_NUM_ = 0
 
 _simtime_ = 1.6e-3*1e5+1000
+_ts_ = 1e-04
 _molPosTS_ = 1e-04
 
 _seed_ =  (np.random.randint(1e12))
@@ -48,15 +50,16 @@ expt_description = open("/Users/Akshay/Dropbox/Life/EndyLab/Research/Translation
 
 _seed_list = range(0,10000,5)
 
-_boxsize_=3.9
-_accuracy_ =10
-res_steps=3
-_ts_=0.2e-3
-_molPosTS_ = 1.6e-2*100
-crowders = np.array([820,820,820,820,820,820])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([7-1,7-1,7-1,7-1,7-1,7-1]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
-cog_tRNA = np.array([1,2,3,4,5,6])
+_boxsize_list = [2.3]
+_accuracy_list = [8]
+res_steps_list = [3]
+ts_list = np.array([0.4e-3])
+molposts_list = np.array([1.6e-2])*100
+crowders = np.array([820])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([7]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+cog_tRNA = np.array([0])
+multiplier = [2]
 _molPosTSStartCrowder_ =1000
 
 phi_sweep = list()
@@ -64,22 +67,29 @@ for i in range(len(crowders)):
     phi_sweep.append((crowders[i],ribosomes[i],side_len[i],cog_tRNA[i]))
 
 i_max = 1
-k_max= 6
-j_max= 100
+k_max= 1
+j_max= 11
 for i in range(i_max):
 	for k in range (0, k_max):
+		_boxsize_ = _boxsize_list[k]
+		_accuracy_ = _accuracy_list[k]
 		_crowder_NUM_ = phi_sweep[k][0]
 		_ribosome_NUM_ = phi_sweep[k][1]
 		_side_len_ = phi_sweep[k][2]
 		_tRNA_uni_NUM_ = phi_sweep[k][3]
-
-
-		_molPosTSStart_ = 20
-		_molPosTSEndReactionLog_ = 20+_ts_*res_steps*2 
+		res_steps = res_steps_list[k]
+		#res_steps = 300
+		_ts_ = ts_list[k]
+		#_molPosTS_ = ts_list[0]*res_steps
 		_ts_rxnon_ = 0
 		_ts_diffon_= _ts_*(res_steps-1)
 		_ts_delta_= _ts_*res_steps
-		_simtime_ = 1.6e7
+		_molPosTS_ = molposts_list[k]
+		_molPosTSStart_ = ts_list[0]/_ts_*_ts_*res_steps*5e4
+		_molPosTSEndReactionLog_ = ts_list[0]/_ts_*_ts_*res_steps*5e4+_ts_*res_steps*2 
+		_simtime_ = _ts_*res_steps+multiplier[k]*(1)*res_steps
+		_simtime2_ = _ts_*res_steps+(250)*res_steps
+
 
 		for j in range(0, j_max):
 			_seed_ = _seed_list[j]
@@ -119,6 +129,7 @@ for i in range(i_max):
 			expt.write("variable Z_ts_ " + str(_ts_)+ "\n")
 			expt.write("define_global Z_molPosTS_ " + str(_molPosTS_) + "\n")
 			expt.write("define_global Z_simtime_ " + str(_simtime_)+ "\n")
+			expt.write("define_global Z_simtime2_ " + str(_simtime2_)+ "\n")
 
 
 			expt.write("define_global Z_molPosTSStart_ " + str(_molPosTSStart_) + "\n")
