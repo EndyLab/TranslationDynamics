@@ -2,11 +2,11 @@
 #Akshay Maheshwari, 9/06/2017
 #Secure copies experiment analysis from each AWS instance that is active to local directory
 
-EXPERIMENT_PATH="/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/"
-SRC_PATH="/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/src/"
+EXPERIMENT_PATH="/Users/Akshay/Documents/TranslationDynamics/expts/"
+SRC_PATH="/Users/Akshay/Documents/TranslationDynamics/src/"
 
 dateformat=$(date +"%y%m%d"_%H%M)
-DATA_PATH="/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/data/"$dateformat"/"
+DATA_PATH="/Users/Akshay/Documents/TranslationDynamics/data/"$dateformat"/"
 #BACKUP_PATH="s3://my-bucket/MyFolder"
 KPATH="/Users/Akshay/Dropbox/code/akshay.pem"
 KEEP_LOCALDATA=true; #Need to implement this conditional once have cloud storage setup.

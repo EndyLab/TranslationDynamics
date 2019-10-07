@@ -3,7 +3,7 @@
 #Secure copies experiment analysis from each AWS instance that is active to local directory
 
 KPATH="/Users/Akshay/Dropbox/code/akshay.pem"
-DATA_PATH="/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/data/190903_1848/"
+DATA_PATH="/Users/Akshay/Documents/TranslationDynamics/data/190903_1848/"
 REGION=us-west-1
 
 

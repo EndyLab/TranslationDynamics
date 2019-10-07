@@ -12,7 +12,6 @@ import numpy as np
 
 _tRNA_cog_NUM_ = 0
 _tRNA_nr_NUM_ = 0
-_tRNA_non_NUM_ = 41
 _crowder_NUM_ = 0
 _ribosome_NUM_ = 0
 _ribosome_cog_NUM_ =0
@@ -28,17 +27,17 @@ _molPosTS_ = 1e-04
 
 _seed_ =  (np.random.randint(1e12))
 
-exptList = open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/expt_list.txt","w")
-outputSimtimeList=open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/outputSimtimeList.txt","w")
+exptList = open("/Users/Akshay/Documents/TranslationDynamics/expts/expt_list.txt","w")
+outputSimtimeList=open("/Users/Akshay/Documents/TranslationDynamics/expts/outputSimtimeList.txt","w")
 
-outputReactionsList=open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/outputReactionsList.txt","w")
-outputMolPosList = open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/outputMolPosList.txt","w")
+outputReactionsList=open("/Users/Akshay/Documents/TranslationDynamics/expts/outputReactionsList.txt","w")
+outputMolPosList = open("/Users/Akshay/Documents/TranslationDynamics/expts/outputMolPosList.txt","w")
 
 _D_tRNAEfTu_ = 1.0
 _D_ribosome_ = 0.454545
 _D_crowder_ = 2.95
 
-expt_description = open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/expt_description.txt","w")
+expt_description = open("/Users/Akshay/Documents/TranslationDynamics/expts/expt_description.txt","w")
 
 
 
@@ -53,11 +52,13 @@ _accuracy_ =10
 res_steps=3
 _ts_=0.1e-3
 _molPosTS_ = 1.6e-2*100
-crowders = np.array([1970,1970,1970,1970,1970,1970])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([4-1,4-1,4-1,4-1,4-1,4-1]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.101*1/0.0059,0.101*1/0.0059,0.101*1/0.0059,0.101*1/0.0059,0.101*1/0.0059,0.101*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+crowders = np.array([1090,1090,1090,1090,1090,1090])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([8-1,8-1,8-1,8-1,8-1,8-1]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
 cog_tRNA = np.array([1,2,3,4,5,6])
+non_cog_tRNA = np.array([42-1,42-2,42-3,42-4,42-5,42-6])
 _molPosTSStartCrowder_ =1000
+
 
 phi_sweep = list()
 for i in range(len(crowders)):
@@ -72,7 +73,7 @@ for i in range(i_max):
 		_ribosome_NUM_ = phi_sweep[k][1]
 		_side_len_ = phi_sweep[k][2]
 		_tRNA_uni_NUM_ = phi_sweep[k][3]
-
+		_tRNA_non_NUM_ = non_cog_tRNA[k]
 
 		_molPosTSStart_ = 20
 		_molPosTSEndReactionLog_ = 20+_ts_*res_steps*2 
@@ -97,7 +98,7 @@ for i in range(i_max):
 			_outputMoleculePosRibosome_ = "expt-"+str(j_max*k_max*i+j_max*k+j)+"-MolposRibosome-"+datetime.date.today().strftime('%Y%m%d')+ ".csv"
 			_outputMoleculePos_ = "expt-"+str(j_max*k_max*i+j_max*k+j)+"-MolpostRNA-"+datetime.date.today().strftime('%Y%m%d')+ ".csv"
 
-			expt = open("/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/" + exptname,'w')
+			expt = open("/Users/Akshay/Documents/TranslationDynamics/expts/" + exptname,'w')
 			expt.write("variable Z_side_len_ " + str(_side_len_) + "\n")
 			expt.write("variable Z_tRNA_cog_NUM_ " + str(_tRNA_cog_NUM_)+ "\n")
 			expt.write("variable Z_tRNA_nr_NUM_ " + str(_tRNA_nr_NUM_)+ "\n")

@@ -21,7 +21,6 @@ mol Z_ribosome_NUM_ ribosome u u u
 mol Z_tRNA_cog_NUM_ tRNA_cog u u u
 mol Z_tRNA_nr_NUM_ tRNA_nr u u u
 mol Z_tRNA_non_NUM_ tRNA_non u u u
-mol Z_crowder_NUM_ crowder u u u
 mol Z_ribosome_cog_NUM_ ribosome_cog u u u
 mol Z_ribosome_nr_NUM_ ribosome_nr u u u
 mol Z_ribosome_non_NUM_ ribosome_non u u u
@@ -33,6 +32,8 @@ mol 0 ribosome_non_uni u u u
 mol 0 ribosome_cog_uni u u u
 mol 0 ribosome_suc_uni u u u
 mol 0 ribosome_non_uni_1 u u u
+mol Z_crowder_NUM_ crowder u u u
+
 
 accuracy Z_acc
 boxsize Z_boxsize
@@ -106,18 +107,18 @@ reaction rxn6 tRNA_non + ribosome -> ribosome_non
 binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn6 r1.r2
 
-reaction rxn7 ribosome_non -> tRNA_non + ribosome 71700/1608733
+reaction rxn7 ribosome_non -> tRNA_non + ribosome 143400/1608733
 product_placement rxn7 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn7 r1L + r1R 
 
 reaction rxn17 tRNA_uni + ribosome_noreac -> ribosome_cog_uni
-binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD
+binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn17 r1.r2
 
-reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 147500/1608733
+reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 295000/1608733
 
 ##Unsuccessful cognate reaction
-reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 71700/1608733
+reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 143400/1608733
 product_placement rxn19 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn19 r1L + r1R
 
@@ -125,18 +126,18 @@ reaction_serialnum rxn19 r1L + r1R
 #reaction rxn20 ribosome_suc_uni -> ribosome_inac #9600/1608733
 
 reaction rxn21 tRNA_uni + ribosome -> ribosome_non_uni
-binding_radius rxn21 (tRNAEfTu_RAD+ribosome_RAD)
+binding_radius rxn21 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn21 r1.r2
 
-reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 71700/1608733
+reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 143400/1608733
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 r1L + r1R
 
 reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
-binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD
+binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn23 r1.r2
 
-reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 71700/1608733
+reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 143400/1608733
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn24 r1L + r1R 
 
@@ -181,6 +182,9 @@ reaction_log Z_outputReactions_ rxn19 all
 reaction_log Z_outputReactions_ rxn20 all
 reaction_log Z_outputReactions_ rxn21 all
 reaction_log Z_outputReactions_ rxn22 all
+reaction_log Z_outputReactions_ rxn23 all
+reaction_log Z_outputReactions_ rxn24 all
+
 
 #cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn1 1
 #cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn2 1
@@ -208,8 +212,8 @@ text_display time
 
 #cmd E pause
 
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all Z_outputMoleculePostRNA_
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all Z_outputMoleculePosCrowder_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all Z_outputMoleculePostRNA_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all Z_outputMoleculePosCrowder_
 
 #cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 tRNA_cog(all) Z_outputMoleculePostRNA_
 #cmd i Z_molPosTSStartCrowder_ Z_simtime_ Z_molPosTS_ listmols3 crowder(all) Z_outputMoleculePosCrowder_

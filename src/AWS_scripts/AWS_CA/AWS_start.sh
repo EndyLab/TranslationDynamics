@@ -6,7 +6,7 @@ AMI=ami-05100a02b85c5e455
 KNAME=akshay
 SID=sg-10dd6576
 TYPE=t3.nano #t3.nano 
-EXPLIST_PATH="/Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/expts/expt_list.txt"
+EXPLIST_PATH="/Users/Akshay/Documents/TranslationDynamics/expts/expt_list.txt"
 COUNT=$(($(wc -l < $EXPLIST_PATH))) #counts number of lines in experiment_list then adds 1 (since bash doesn't count last line)
 REGION=us-west-1
 echo "Starting $COUNT instances of $TYPE..."
@@ -14,11 +14,11 @@ echo "Starting $COUNT instances of $TYPE..."
 echo $(( COUNT%901 ))
 sleep 5
 
-aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=west1}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count $(( COUNT%901 )) --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate
+aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=spottest}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count $(( COUNT%901 )) --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate --instance-market-options '{"MarketType":"spot","SpotOptions": {"MaxPrice": "0.002", "InstanceInterruptionBehavior": "hibernate"}}'
 if [ $COUNT -gt 900 ]; then
 	echo 900
 	sleep 180
-	aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=west1}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count 900 --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate
+	aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=spottest}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count 900 --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate 
 fi
 
 echo "Done starting"

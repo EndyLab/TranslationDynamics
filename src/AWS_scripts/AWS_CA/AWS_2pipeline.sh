@@ -2,7 +2,7 @@
 #Akshay Maheshwari, 9/02/2017
 #Runs other scripts to automate pipeline from experiment set-up to analysis & figure production.
 
-python3 /Users/Akshay/Dropbox/Life/EndyLab/Research/TranslationDynamics/src/smol_exptSetup.py
+python3 /Users/Akshay/Documents/TranslationDynamics/src/smol_exptSetup.py
 sleep 2
 sh AWS_start.sh
 sleep 100

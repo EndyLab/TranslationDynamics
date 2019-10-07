@@ -373,27 +373,36 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
         rxn21_count = 0
         if(expt_num>=expt_start and expt_num<expt_end):
             try:
+                #print(expt_num)
                 my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
                 df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
                 df=df.loc[df['rxn'].isin(["rxn22"])]
-                df=df[['productA']]
+                df=df.loc[:,['time','productB']]
                 reactant = '-1'
                 repeat=0
+                first = True
                 for _, row in df.iterrows():
-                    if(row["productA"]==reactant):
-                        repeat+=1
-                    else:
-                        rxn21_tot.append(repeat)
-                        repeat=0
-                        reactant = row["productA"]
-                    
+                    if row['time']<simtime:
+                        #print("# repeat ", repeat, " molecules ", reactant, " and ", row["productB"])
+                        if(row["productB"]==reactant):
+                            repeat+=1
+
+                        else:
+                            if first==False:
+                                rxn21_tot.append(repeat)
+                            repeat=0
+                            reactant = row["productB"]
+                            first=False
+
                 #print(df.shape[0])
+                if repeat != 0:
+                    rxn21_tot.append(repeat)
 
             except:
                 print("missing expt")
                 print(expt_num)
     #print(rxn21_tot)
-
+    print(rxn21_tot)
     return np.average(rxn21_tot), np.std(rxn21_tot)
 
 def countIncorrectRepeatCollisions(path,expt_start,expt_end,equalRibosomes=False,ts_equillibrate=0, avg=False,scaling=1):
