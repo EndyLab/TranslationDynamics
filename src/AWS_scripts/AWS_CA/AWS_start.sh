@@ -14,11 +14,13 @@ echo "Starting $COUNT instances of $TYPE..."
 echo $(( COUNT%901 ))
 sleep 5
 
-aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=spottest}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count $(( COUNT%901 )) --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate --instance-market-options '{"MarketType":"spot","SpotOptions": {"MaxPrice": "0.002", "InstanceInterruptionBehavior": "hibernate"}}'
+aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=crowded-gr3-200x-lowdiff}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count $(( COUNT%901 )) --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate
 if [ $COUNT -gt 900 ]; then
 	echo 900
 	sleep 180
-	aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=spottest}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count 900 --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate 
+	aws ec2 run-instances --tag-specifications 'ResourceType=instance,Tags=[{Key=expts,Value=crowded-gr3-200x-lowdiff}]' --image-id $AMI --instance-type $TYPE --key-name $KNAME --security-group-ids $SID --count 900 --region $REGION --iam-instance-profile Name="EC2toS3" --instance-initiated-shutdown-behavior=terminate 
 fi
 
 echo "Done starting"
+
+#--instance-market-options '{"MarketType":"spot","SpotOptions": {"MaxPrice": "0.002", "InstanceInterruptionBehavior": "hibernate"}}'
