@@ -452,13 +452,26 @@ class CellLatencies:
         self.avg_rxnT = np.average(self.rxnT)   
         self.avg_searchT = np.average(self.searchT)    
 
-        bootstrapped_avg = list()
-        if bootstrap:
-            for i in range(10000):
-                bootstrapped_avg.append(np.average(np.random.choice(self.searchT,len(self.searchT))))
+        bootstrapped_search_avg = list()
+        bootstrapped_transport_avg = list()
+        bootstrapped_rxn_avg = list()
 
-            self.bootavg_searchT = np.average(bootstrapped_avg)
-            self.bootstd_searchT = np.std(bootstrapped_avg)
+        if bootstrap:
+            N=10000
+            for i in range(N):
+                bootstrapped_search_avg.append(np.average(np.random.choice(self.searchT,len(self.searchT))))
+                bootstrapped_transport_avg.append(np.average(np.random.choice(self.transportT,len(self.transportT))))
+                bootstrapped_rxn_avg.append(np.average(np.random.choice(self.rxnT,len(self.rxnT))))
+
+            self.bootavg_searchT = np.average(bootstrapped_search_avg)
+            self.bootavg_transportT = np.average(bootstrapped_transport_avg)
+            self.bootavg_rxnT = np.average(bootstrapped_rxn_avg)
+            #self.bootstd_searchT = np.std(bootstrapped_avg)
+            self.bootstd_searchT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_search_avg)-self.bootavg_searchT)**2)) #Standard error of means = bootstrap standard error
+            self.bootstd_transportT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_transport_avg)-self.bootavg_transportT)**2)) #Standard error of means = bootstrap standard error
+            self.bootstd_rxnT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_rxn_avg)-self.bootavg_rxnT)**2)) #Standard error of means = bootstrap standard error
+
+
 
 def getTotalSuccessIncorpTime(path,expt_start,expt_end):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
