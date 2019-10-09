@@ -402,7 +402,6 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 print("missing expt")
                 print(expt_num)
     #print(rxn21_tot)
-    print(rxn21_tot)
     return np.average(rxn21_tot), np.std(rxn21_tot)
 
 def countIncorrectRepeatCollisions(path,expt_start,expt_end,equalRibosomes=False,ts_equillibrate=0, avg=False,scaling=1):
