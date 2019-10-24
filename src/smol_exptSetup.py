@@ -52,11 +52,11 @@ _accuracy_ =10
 res_steps=3
 _ts_=0.1e-3
 _molPosTS_ = 1.6e-2*100
-crowders = np.array([0,0,0,0,0,0])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([8-1,8-1,8-1,8-1,8-1,8-1]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
-cog_tRNA = np.array([1,2,3,4,5,6])
-non_cog_tRNA = np.array([42-1,42-2,42-3,42-4,42-5,42-6])
+crowders = np.array([1970,2096,1791,1418,1090,820])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([4,8,9,9,8,7]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.101*1/0.0059,0.0929*1/0.0059,0.0842*1/0.0059,0.0774*1/0.0059,0.072*1/0.0059,0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+cog_tRNA = np.array([0,0,0,0,0,0])
+non_cog_tRNA = np.array([42,42,42,42,42,42])
 _molPosTSStartCrowder_ =1000
 
 
@@ -70,17 +70,17 @@ j_max= 100
 for i in range(i_max):
 	for k in range (0, k_max):
 		_crowder_NUM_ = phi_sweep[k][0]
-		_ribosome_NUM_ = phi_sweep[k][1]
+		_ribosome_noreac_NUM_  = phi_sweep[k][1]
 		_side_len_ = phi_sweep[k][2]
 		_tRNA_uni_NUM_ = phi_sweep[k][3]
 		_tRNA_non_NUM_ = non_cog_tRNA[k]
 
-		_molPosTSStart_ = 20
+		_molPosTSStart_ = 10
 		_molPosTSEndReactionLog_ = 20+_ts_*res_steps*2 
 		_ts_rxnon_ = 0
 		_ts_diffon_= _ts_*(res_steps-1)
 		_ts_delta_= _ts_*res_steps
-		_simtime_ = 1.6e7
+		_simtime_ = 10
 
 		for j in range(0, j_max):
 			_seed_ = _seed_list[j]

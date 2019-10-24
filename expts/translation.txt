@@ -133,9 +133,6 @@ reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 143400/1608733
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 r1L + r1R
 
-reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
-binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
-reaction_serialnum rxn23 r1.r2
 
 reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 143400/1608733
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
@@ -152,7 +149,7 @@ tiff_name movie/translationSnap
 tiff_max 1
 graphic_iter 1
 
-output_file Z_outputMoleculePostRNA_ Z_outputMoleculePostRNA2_ Z_outputMoleculePosCrowder_ Z_outputReactions_ Z_outputSimtime_
+output_file Z_outputMoleculePostRNA_ Z_outputMoleculePostRNA2_ Z_outputMoleculePosCrowder_ Z_outputReactions_ Z_outputSimtime_ Z_outputMoleculePosRibosome_
 output_precision 1000
 
 #cmd @ Z_molPosTSStart_ set reaction_log Z_outputReactions_ rxn1 all
@@ -211,12 +208,12 @@ text_display time
 
 #cmd E pause
 
-cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all Z_outputMoleculePostRNA_
-cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all Z_outputMoleculePosCrowder_
+#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all #Z_outputMoleculePostRNA_
+#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all #Z_outputMoleculePosCrowder_
 
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 tRNA_cog(all) Z_outputMoleculePostRNA_
-#cmd i Z_molPosTSStartCrowder_ Z_simtime_ Z_molPosTS_ listmols3 crowder(all) Z_outputMoleculePosCrowder_
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 ribosome(all) Z_outputMoleculePosRibosome_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 tRNA*(all) Z_outputMoleculePostRNA_
+cmd i Z_molPosTSStartCrowder_ Z_simtime_ Z_molPosTS_ listmols3 crowder(all) Z_outputMoleculePostRNA_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 ribosome*(all) Z_outputMoleculePostRNA_
 
 cmd i Z_simtime_ Z_simtime_ Z_simtime_ executiontime Z_outputSimtime_
 text_display time
