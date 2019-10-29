@@ -377,6 +377,8 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
                 df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
                 df=df.loc[df['rxn'].isin(["rxn22"])]
+                print(df)
+
                 df=df.loc[:,['time','productB']]
                 reactant = '-1'
                 repeat=0
@@ -423,7 +425,6 @@ def countIncorrectRepeatCollisions(path,expt_start,expt_end,equalRibosomes=False
                     df=df.loc[df['reactantA'].isin(["1","2","3","4"])]
 
                 df=df.sort_values(['reactantA', 'time'])
-
                 reactantA = '-1'
                 reactantB = '-1'
                 repeat=0
