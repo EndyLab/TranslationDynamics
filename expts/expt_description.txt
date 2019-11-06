@@ -1,1 +1,1 @@
-Total simulation time: 10s. ; Simulation time step: 0.0001 s.
+Total simulation time: 16000000.0s. ; Simulation time step: 0.0001 s.
