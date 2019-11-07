@@ -321,7 +321,6 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                         single_TransportTime = list()
                         single_RxnTime = list()
 
-
                 #print(reaction_time_i)
                 #if(succincorp_count<num_rib and avg==True):
                  #   transport_time_i = transport_time_i[:-1] #drops the last transport time if there wasn't a reaction recorded afterwards (else last transport time would be too short)
