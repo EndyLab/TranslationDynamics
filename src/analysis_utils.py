@@ -367,7 +367,6 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
 
     rxn21_tot = list()
-    print("test")
     for expt_num, row in df_outputs.iterrows():
         rxn21_count = 0
         if(expt_num>=expt_start and expt_num<expt_end):
@@ -376,7 +375,7 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
                 df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
                 df=df.loc[df['rxn'].isin(["rxn22"])]
-                print(df)
+                #print(df)
 
                 df=df.loc[:,['time','productB']]
                 reactant = '-1'
