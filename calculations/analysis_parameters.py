@@ -23,7 +23,7 @@ def takeClosest(myList, myNumber):
 def f_rib(dbl_rate):
 	"""
 	
-	Fits a second order polynomial to experimental data points describing how active ribosome abundance changes with growth rate,
+	Fits a first order polynomial to experimental data points describing how active ribosome abundance changes with growth rate,
 	and returns the estimated abundance of ribosomes that should be expected for a given input growth rate.
 	
 	Arguments:
@@ -119,6 +119,7 @@ def f_nuc(dbl_rate):
 
 	nuc_i = dbl_rate*nuc_PolyFit[0]+nuc_PolyFit[1]
 	return(nuc_i)
+
 
 def calcParams(rib_num,tern_num,cell_mass,cell_vol,nuc_volfrac): 
 	"""
