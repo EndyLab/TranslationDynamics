@@ -261,7 +261,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     success_incorp = list()
     rxn17_tot = list()
     rxn21_tot = list()
-    print("test")
+    print("Computing...")
     for expt_num, row in df_outputs.iterrows():
         succincorp_count = 0
         rxn17_count = 0
@@ -337,6 +337,151 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 print(expt_num)
 
     return transport_time, reaction_time, success_incorp,rxn17_tot,rxn21_tot, search_time
+
+def cognateDistrib(ptRNA,pCodon):
+
+    ptRNA = np.divide(ptRNA,sum(ptRNA))
+    pCodon= np.divide(pCodon, sum(pCodon))
+
+    tRNA_tags = ["Ala1B", "Ala2", "Arg2", "Arg3", "Arg4", "Arg5", "Asn", "Asp1", "Cys", "Gln1", "Gln2", \
+    "Glu2", "Gly2", "Gly3", "His", "Ile1", "Leu1", "Leu2", "Leu3", "Leu4", "Leu5", "Lys", \
+    "Met_m", "Phe", "Pro1", "Pro2", "Pro3", "Sel_Cys", "Ser1", "Ser2", "Ser3", "Ser5", "Thr1", \
+    "Thr2", "Thr3", "Thr4", "Trp", "Tyr1pTyr2", "Val1", "Val2ApB"]
+
+    ptRNA_dict = dict(zip(tRNA_tags, ptRNA))
+    
+    codonLabels = pd.read_excel('codonValues.xlsx',header=None)[5]
+    pcodon_dict = dict(zip(codonLabels,pCodon))
+
+    #Note AUA does not have an assigned tRNA
+    codon_dict={'GGG': ['Gly2'], 'GGA': ['Gly2'], 'GGU': ['Gly3'], 'GGC': ['Gly3'], \
+    'GAG': ['Glu2'], 'GAA': ['Glu2'], 'GAU': ['Asp1'], 'GAC': ['Asp1'], \
+    'GUG': ['Val1'], 'GUA': ['Val1'], 'GUU': ['Val1','Val2ApB'], \
+    'GUC': ['Val2ApB'], 'GCG': ['Ala1B'], 'GCA': ['Ala1B'], 'GCU': ['Ala1B'], \
+    'GCC': ['Ala2'], 'AGG': ['Arg5'], 'AGA': ['Arg4'], 'AGU': ['Ser3'], \
+    'AGC': ['Ser3'], 'AAG': ['Lys'], 'AAA': ['Lys'], 'AAU': ['Asn'], \
+    'AAC': ['Asn'], 'AUG': ['Met_m'], 'AUA': [], 'AUU': ['Ile1'], \
+    'AUC': ['Ile1'], 'ACG': ['Thr2','Thr4'], 'ACA': ['Thr4'], \
+    'ACU': ['Thr1','Thr4','Thr3'], 'ACC': ['Thr3','Thr1'], \
+    'UGG': ['Trp'], 'UGA': ['Sel_Cys'], 'UGU': ['Cys'], 'UGC': ['Cys'], \
+    'UAU': ['Tyr1pTyr2'], 'UAC': ['Tyr1pTyr2'], 'UUG': ['Leu5','Leu4'], \
+    'UUA': ['Leu5'], 'UUU': ['Phe'], 'UUC': ['Phe'], 'UCG': ['Ser1','Ser2'], \
+    'UCA': ['Ser1'], 'UCU': ['Ser5','Ser1'], 'UCC': ['Ser5'], 'CGG': ['Arg3'], \
+    'CGA': ['Arg2'], 'CGU': ['Arg2'], 'CGC': ['Arg2'], 'CAG': ['Gln2'], \
+    'CAA': ['Gln1'], 'CAU': ['His'], 'CAC': ['His'], 'CUG': ['Leu1','Leu3'], \
+    'CUA': ['Leu3'], 'CUU': ['Leu2'], 'CUC': ['Leu2'], 'CCG': ['Pro1','Pro3'], \
+    'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
+
+    cells = 1
+    TU = 9500
+    time = 180
+    tRNA_distrib_arr = list()
+    codon_count = {}
+    codon_time = {}
+    codon_time_avg = {}
+    codon_time_weighted_avg={}
+    codon_count_hist = {}
+    codon_count_hist_weighted_avg = np.zeros(42)
+    p_codon_tRNA = {}
+
+    for key in codon_dict:
+        codon_count[key] = []
+        codon_time[key] = []
+        codon_time_avg[key] = []
+        codon_time_weighted_avg[key]=[]
+        codon_count_hist[key]=[]
+        p_codon_tRNA[key] = []
+
+    # Construct dictionary that assigns probability of all tRNA specific to a certain codon
+    # to that codon (p_codon_tRNA)
+    for codon in codon_dict:
+        p_codon_tRNA_i = 0
+        for tRNA in codon_dict[codon]:
+            p_codon_tRNA_i += ptRNA_dict[tRNA]
+        p_codon_tRNA[codon].append(p_codon_tRNA_i)
+
+    for cell in range(cells):
+        # Generate distribution for cognate tRNA count for each codon
+        for i in range(TU):
+
+            #Construct translation unit with random tRNA (weighted by specific tRNA abundances)
+            #and 1 random codon (weighted by codon probabilities).
+            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=ptRNA))
+            codon_vox = np.random.choice(codonLabels, 1)
+
+            #Count how many cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
+            codon_count_i = 0
+            for tRNA in codon_dict[codon_vox[0]]:
+                codon_count_i += tRNA_vox.count(tRNA)
+            codon_count[codon_vox[0]].append(codon_count_i)
+
+        for codon in codon_count:
+            #Generate histogram of cognate tRNA counts for each codon
+            codon_count_hist[codon] = np.histogram(codon_count[codon], bins=np.arange(0,43))[0]/sum(np.histogram(codon_count[codon], bins=np.arange(0,43))[0])
+
+            #Weight histogram by codon probabilities to generate weighted average histogram for all codon
+            codon_count_hist_weighted_avg += codon_count_hist[codon]*pcodon_dict[codon]
+        p_codon_count_hist_weighted_avg = codon_count_hist_weighted_avg
+        #print(p_codon_count_hist_weighted_avg)
+    return p_codon_count_hist_weighted_avg
+
+def transportRxnCalc(gr, ptRNA, pCodon):
+    colors = ['darkblue','#D43F3A']
+    gr_i_list = ['gr_1']
+    phi_list = [0.13,0.22,0.30,0.36,0.39,0.42]
+    markers = ['*','^']
+    transport_phi = list()
+    reaction_phi = list()
+    search_phi = list()
+    transport_std_phi =list()
+    rxn_std_phi =list()
+    search_std_phi =list()
+    search_list = list()
+    
+    p_codon_count_hist_weighted_avg=cognateDistrib(ptRNA,pCodon)
+    
+    for j,gr_i in enumerate(gr_i_list):
+        transport_vals_list = list()
+        reaction_vals_list = list()
+        search_vals_list = list()
+        transport_std_list = list()
+        rxn_std_list = list()
+        search_std_list = list()
+        
+        #for range(1,7)
+        for i in range(list(gr['gr_1'].keys())[0],list(gr['gr_1'].keys())[-1]+1):
+            transport_vals = gr[gr_i][i].bootavg_transportT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            rxn_vals = gr[gr_i][i].bootavg_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            search_vals = gr[gr_i][i].bootavg_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            
+            transport_std = gr[gr_i][i].bootstd_transportT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            rxn_std = gr[gr_i][i].bootstd_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            search_std = gr[gr_i][i].bootstd_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+
+            transport_vals_list.append(np.array(transport_vals))
+            reaction_vals_list.append(np.array(rxn_vals))
+            search_vals_list.append(np.array(search_vals))
+            
+            transport_std_list.append(np.array(transport_std))
+            rxn_std_list.append(np.array(rxn_std))
+            search_std_list.append(np.array(search_std))
+            
+            search_list.append(np.array(gr[gr_i][i].searchT)*1000/1608733)
+            print('Unweighted search time (', str(i), ' cognate)', np.array(search_vals/p_codon_count_hist_weighted_avg[i]))
+        transport_phi.append(np.sum(transport_vals_list))
+        reaction_phi.append(np.sum(reaction_vals_list))
+        search_phi.append(np.sum(search_vals_list))
+        
+        transport_std_phi.append(np.sum(transport_std_list))
+        rxn_std_phi.append(np.sum(rxn_std_list))
+        search_std_phi.append(np.sum(search_std_list))
+
+    print("Transport time: ", transport_phi, " +/- ", transport_std_phi)
+    print("Reaction time: ", reaction_phi, " +/- ", rxn_std_phi)
+    print("Search time: ", search_phi, " +/- ", search_std_phi)
+    
+    return search_list,transport_phi, reaction_phi, search_phi, transport_std_phi,rxn_std_phi,search_std_phi
+
 def countIncorrectReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
 
