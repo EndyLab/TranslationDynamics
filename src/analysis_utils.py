@@ -482,6 +482,103 @@ def transportRxnCalc(gr, ptRNA, pCodon):
     
     return search_list,transport_phi, reaction_phi, search_phi, transport_std_phi,rxn_std_phi,search_std_phi
 
+
+def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
+    import numpy as np
+
+    #arbitrarily pick rib_id = 0 as the matching ribosome
+    #arbitrarily pick tRNA ids 0 to tRNA_cog as cognate tRNAs
+    tRNA_id=np.arange(42)
+    
+    elong_times = list()
+    cog_bind=False;
+    sys_t=0
+    rxns=0
+    
+    ### Create probability distribution for tRNA near matching ribosomes (bias for cognate ternary complexes)
+    p_cogRib=[bias*1/42]*tRNA_cog
+    p_cogRib=np.concatenate((p_cogRib,[1/42]*(42-tRNA_cog)))
+    p_cogRib = p_cogRib/sum(p_cogRib)
+    
+    ### Create probability distribution for tRNA near non-matching ribosomes (anti-bias for cognate ternary complexes)
+    p_noncogRib=[1/(42*bias)]*tRNA_cog 
+    p_noncogRib=np.concatenate((p_noncogRib,[1/42]*(42-tRNA_cog)))
+    p_noncogRib=p_noncogRib/sum(p_noncogRib)
+    
+    ## Randomly pick the tRNA to be bound to the matching ribosome from all possible tRNA.
+    # Picking is biased based on p_cogRib
+    tRNA_bound=np.random.choice(tRNA_id,1,replace=False,p=p_cogRib)
+    tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
+
+    ##From the remaining unbound tRNA, pick tRNA for all other ribosomes (all of which are non-matching)
+    # Picking is biased based on p_noncogRib
+    if rib_num>1:
+        tRNA_bound=np.concatenate((tRNA_bound,np.random.choice(tRNA_unbound,rib_num-1,replace=False,p=p_noncogRib[tRNA_unbound]/sum(p_noncogRib[tRNA_unbound]))))
+        tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
+
+    ## For each ribosome, now with a reacting tRNA, pick an exponential random time until dissociation 
+    #(assuming cognate ternary complex hasn't bound to matching ribosome)
+    k_r = 717
+    react_time = np.random.exponential(1000/k_r,rib_num)
+
+    ## Dealing with the case of cognate tRNA binding to matching ribosome.
+    # We account for the that the cognate tRNA unbinds from the matching ribosome
+    k_f = 1475
+    if tRNA_bound[0] in np.arange(tRNA_cog) and np.random.uniform(0,1)<k_f/(k_f+k_r):
+        cog_bind=True
+        sys_t+=np.random.exponential(1000/k_f)
+        return sys_t,rxns
+
+    #### Loop while cognate tRNA isn't bound to cognate ribosome successfully
+    while not cog_bind:
+        ###Find next event (a tRNA unbinding from a ribosome) and jump the system to this time
+        next_rib_time = min(react_time)
+        next_rib = np.argmin(react_time)
+        just_unbound_tRNA = tRNA_bound[next_rib]
+        
+        #Count number of times a ternary complex reacted with the matching ribosome
+        if(next_rib==0):
+            rxns+=1
+
+        ##Adjust all pending reaction times by change in system time
+        sys_t+= next_rib_time
+        react_time = react_time - np.ones(rib_num)*next_rib_time
+        
+        ##Pick new tRNA to be bound to recently unbound ribosome, based on whether repeat reactions are allowed or not
+        
+        unbound_tRNA_repeattransient = np.concatenate((tRNA_unbound,[just_unbound_tRNA]))
+
+        if repeatAllowed:
+            if next_rib==0:
+                next_tRNA = np.random.choice(unbound_tRNA_repeattransient,size=1,replace=False,p=p_cogRib[unbound_tRNA_repeattransient]/sum(p_cogRib[unbound_tRNA_repeattransient]))
+            else:
+                next_tRNA = np.random.choice(unbound_tRNA_repeattransient,size=1,replace=False,p=p_noncogRib[unbound_tRNA_repeattransient]/sum(p_noncogRib[unbound_tRNA_repeattransient]))
+ 
+        else:
+            if next_rib==0:
+                next_tRNA = np.random.choice(tRNA_unbound,size=1,replace=False,p=p_cogRib[tRNA_unbound]/sum(p_cogRib[tRNA_unbound]))
+            else:
+                next_tRNA = np.random.choice(tRNA_unbound,size=1,replace=False,p=p_noncogRib[tRNA_unbound]/sum(p_noncogRib[tRNA_unbound]))
+
+
+        tRNA_bound[next_rib] = next_tRNA
+        tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
+        
+        
+        ## Check if newly bound ternary complex is the cognate bound to the matching ribosome, and if so, whether the reaction is successful 
+        k_r = 717
+        k_f= 1475
+        if tRNA_bound[0] in np.arange(tRNA_cog) and next_rib==0:
+            if np.random.uniform(0,1)<k_f/(k_f+k_r):
+                sys_t+=np.random.exponential(1000/k_f)
+                return sys_t,rxns
+        
+        ##Else, pick a mismatch reaction time for the newly bound tRNA
+        react_time[next_rib] = np.random.exponential(1000/717)
+                
+    return sys_t,rxns
+
+
 def countIncorrectReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
 
