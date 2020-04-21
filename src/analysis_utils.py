@@ -338,7 +338,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
 
     return transport_time, reaction_time, success_incorp,rxn17_tot,rxn21_tot, search_time
 
-def cognateDistrib(ptRNA,pCodon):
+def cognateDistrib(ptRNA,pCodon,bias=1):
 
     ptRNA = np.divide(ptRNA,sum(ptRNA))
     pCodon= np.divide(pCodon, sum(pCodon))
@@ -404,14 +404,26 @@ def cognateDistrib(ptRNA,pCodon):
         # Generate distribution for cognate tRNA count for each codon
         for i in range(TU):
 
-            #Construct translation unit with random tRNA (weighted by specific tRNA abundances)
-            #and 1 random codon (weighted by codon probabilities).
-            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=ptRNA))
+            #Choose 1 random codon for tranlsation voxel (weighted by codon probabilities), and identify cognate and non cognate ternary complexes
             codon_vox = np.random.choice(codonLabels, 1)
+            cognatetRNA = codon_dict[codon_vox[0]]
+            noncognatetRNA = [tRNA for tRNA in tRNA_tags if tRNA not in codon_dict[codon_vox[0]]]
+
+            ##Create biased tRNA distribution
+            biased_ptRNA = ptRNA.copy()
+            for _,tRNA_i in enumerate(cognatetRNA):
+                biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]*bias
+            for _,tRNA_i in enumerate(noncognatetRNA):
+                biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]/bias
+            biased_ptRNA = biased_ptRNA/sum(biased_ptRNA)
+
+            #Construct translation voxel (weighted by specific tRNA abundances and bias)
+            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=biased_ptRNA))
+
 
             #Count how many cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
             codon_count_i = 0
-            for tRNA in codon_dict[codon_vox[0]]:
+            for tRNA in cognatetRNA:
                 codon_count_i += tRNA_vox.count(tRNA)
             codon_count[codon_vox[0]].append(codon_count_i)
 
@@ -425,7 +437,7 @@ def cognateDistrib(ptRNA,pCodon):
         #print(p_codon_count_hist_weighted_avg)
     return p_codon_count_hist_weighted_avg
 
-def transportRxnCalc(gr, ptRNA, pCodon):
+def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
     colors = ['darkblue','#D43F3A']
     gr_i_list = ['gr_1']
     phi_list = [0.13,0.22,0.30,0.36,0.39,0.42]
@@ -438,7 +450,7 @@ def transportRxnCalc(gr, ptRNA, pCodon):
     search_std_phi =list()
     search_list = list()
     
-    p_codon_count_hist_weighted_avg=cognateDistrib(ptRNA,pCodon)
+    p_codon_count_hist_weighted_avg=cognateDistrib(ptRNA,pCodon,bias)
     
     for j,gr_i in enumerate(gr_i_list):
         transport_vals_list = list()
@@ -510,24 +522,33 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
     tRNA_bound=np.random.choice(tRNA_id,1,replace=False,p=p_cogRib)
     tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
 
+
     ##From the remaining unbound tRNA, pick tRNA for all other ribosomes (all of which are non-matching)
     # Picking is biased based on p_noncogRib
     if rib_num>1:
         tRNA_bound=np.concatenate((tRNA_bound,np.random.choice(tRNA_unbound,rib_num-1,replace=False,p=p_noncogRib[tRNA_unbound]/sum(p_noncogRib[tRNA_unbound]))))
         tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
 
+
     ## For each ribosome, now with a reacting tRNA, pick an exponential random time until dissociation 
     #(assuming cognate ternary complex hasn't bound to matching ribosome)
+    # Ribosome array index 0 is the cognate ribosome, which is bound for time react_time[0]
     k_r = 717
     react_time = np.random.exponential(1000/k_r,rib_num)
 
+    ##Tracking reaction latencies for each ternary complex (i.e., total time each ternary complex spends bound). Transport latency is directly computed from total sim time.
+    tRNA_reaction = np.zeros(42)
+    tRNA_reaction[tRNA_bound] = react_time
+
+
     ## Dealing with the case of cognate tRNA binding to matching ribosome.
-    # We account for the that the cognate tRNA unbinds from the matching ribosome
+    # We account for the chance that the cognate tRNA unbinds from the matching ribosome
     k_f = 1475
     if tRNA_bound[0] in np.arange(tRNA_cog) and np.random.uniform(0,1)<k_f/(k_f+k_r):
         cog_bind=True
-        sys_t+=np.random.exponential(1000/k_f)
-        return sys_t,rxns
+        sys_t+=tRNA_reaction[tRNA_bound[0]]
+        return sys_t,rxns,tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
+
 
     #### Loop while cognate tRNA isn't bound to cognate ribosome successfully
     while not cog_bind:
@@ -570,13 +591,17 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
         k_f= 1475
         if tRNA_bound[0] in np.arange(tRNA_cog) and next_rib==0:
             if np.random.uniform(0,1)<k_f/(k_f+k_r):
-                sys_t+=np.random.exponential(1000/k_f)
-                return sys_t,rxns
+                rxnt = np.random.exponential(1000/k_f)
+                sys_t+= rxnt
+                tRNA_reaction[tRNA_bound[0]]+=rxnt
+                return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
         
         ##Else, pick a mismatch reaction time for the newly bound tRNA
-        react_time[next_rib] = np.random.exponential(1000/717)
-                
-    return sys_t,rxns
+        rxnt = np.random.exponential(1000/k_r)
+        react_time[next_rib] = rxnt
+        tRNA_reaction[next_tRNA]+=rxnt
+
+    #return sys_t,rxns, tRNA_reaction[tRNA_bound[0]]
 
 
 def countIncorrectReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
