@@ -261,6 +261,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     success_incorp = list()
     rxn17_tot = list()
     rxn21_tot = list()
+    ribosome_reaction_time = list()
     print("Computing...")
     for expt_num, row in df_outputs.iterrows():
         succincorp_count = 0
@@ -269,20 +270,36 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
         if(expt_num>=expt_start and expt_num<expt_end):
             try:
                 my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
-                df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
-                df=df.loc[df['rxn'].isin(["rxn17","rxn18","rxn19","rxn20","rxn21","rxn22","rxn26"])]
+                df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols,dtype={'reactantA':str,'productA':str,'productB':str,'productC':str})
+
+                df=df.loc[df['rxn'].isin(["rxn17","rxn18","rxn19","rxn20","rxn21","rxn22","rxn23","rxn24","rxn26"])]
                 df=df.loc[df['time']<simtime]
 
                 ##Gets the id of which cognate tRNA succesfully bound to ribosomes (needed in cases where more than one cognate tRNA in voxel)
-                df_succ_tRNA_id = int(str(df.loc[df['rxn'] == 'rxn18']['reactantA'].values[0]).split('.')[0])
-#                print(type(df_succ_tRNA_id))
-#                print(str(df_succ_tRNA_id).split('.')[0])
-                #print(df['reactantA'].apply(str).str.split('.').str[0].apply(int))
+                df_succ_tRNA_id = int(df.loc[df['rxn'] == 'rxn18']['reactantA'].values[0].split('.')[0])
+                df_succ_ribosome_id = int(df.loc[df['rxn'] == 'rxn18']['reactantA'].values[0].split('.')[1])
+
+                df_rib = df[df['rxn'].isin(["rxn17","rxn18","rxn23","rxn24"])]
                 df=df[df['reactantA'].apply(str).str.split('.').str[0].apply(int)==df_succ_tRNA_id]
 
-
                 df=df[['time','rxn']]
+                df_rib = df_rib[['time','rxn']]
 
+                ## Calculate elong time from tracking succesful ribosome
+                rib_reaction_time_i = list()
+                rib_unbound_time_i = list()
+                i=-1
+                for _,row in df_rib.iterrows():
+                    i+=1
+                    if(row['rxn']=='rxn23'):
+                        rib_reaction_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
+                    if(row['rxn']=='rxn24'):
+                        rib_unbound_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
+                    if(row['rxn']=='rxn17'):
+                        if(i==0):
+                            rib_unbound_time_i.append(float(row['time']))
+                        rib_reaction_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
+                #print(np.sum(rib_reaction_time_i),'\n',np.sum(rib_unbound_time_i))
 
                 transport_time_i = list()
                 reaction_time_i = list()
@@ -327,9 +344,11 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 #Need to scale both transport and reaction time: since all reactions are set to happen a scaling factor shorter,
                 #the time the cognate tRNA spends in transport also reduces by 10x since ribosomes are available to be bound quicker.
                 #i.e., if ribosomes are all bound by othe non-cognates for 10x longer, the cognate tRNA spends 10x longer in transport time.
-                transport_time.append([np.sum(transport_time_i)*scaling])
+                #transport_time.append([np.sum(transport_time_i)])
+                transport_time.append([np.sum(rib_reaction_time_i)*scaling+np.sum(rib_unbound_time_i) - np.sum(reaction_time_i)*scaling])
                 reaction_time.append([np.sum(reaction_time_i)*scaling])
-                search_time.append([(np.sum(transport_time_i)+np.sum(reaction_time_i))*scaling])
+                #search_time.append([np.sum(transport_time_i)+np.sum(reaction_time_i)*scaling])
+                search_time.append([np.sum(rib_reaction_time_i)*scaling+np.sum(rib_unbound_time_i)])
                 success_incorp.append([np.sum(succincorp_count)])
 
             except:
@@ -338,7 +357,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
 
     return transport_time, reaction_time, success_incorp,rxn17_tot,rxn21_tot, search_time
 
-def cognateDistrib(ptRNA,pCodon,bias=1):
+def cognateDistrib(ptRNA,pCodon):
 
     ptRNA = np.divide(ptRNA,sum(ptRNA))
     pCodon= np.divide(pCodon, sum(pCodon))
@@ -409,16 +428,16 @@ def cognateDistrib(ptRNA,pCodon,bias=1):
             cognatetRNA = codon_dict[codon_vox[0]]
             noncognatetRNA = [tRNA for tRNA in tRNA_tags if tRNA not in codon_dict[codon_vox[0]]]
 
-            ##Create biased tRNA distribution
-            biased_ptRNA = ptRNA.copy()
-            for _,tRNA_i in enumerate(cognatetRNA):
-                biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]*bias
-            for _,tRNA_i in enumerate(noncognatetRNA):
-                biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]/bias
-            biased_ptRNA = biased_ptRNA/sum(biased_ptRNA)
+            ##Create biased tRNA distribution, if bias exists.
+            #biased_ptRNA = ptRNA.copy()
+            #for _,tRNA_i in enumerate(cognatetRNA):
+            #    biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]*bias
+            #for _,tRNA_i in enumerate(noncognatetRNA):
+            #    biased_ptRNA[tRNA_tags.index(tRNA_i)]=biased_ptRNA[tRNA_tags.index(tRNA_i)]/bias
+            #biased_ptRNA = biased_ptRNA/sum(biased_ptRNA)
 
             #Construct translation voxel (weighted by specific tRNA abundances and bias)
-            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=biased_ptRNA))
+            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=ptRNA))
 
 
             #Count how many cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
@@ -450,7 +469,7 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
     search_std_phi =list()
     search_list = list()
     
-    p_codon_count_hist_weighted_avg=cognateDistrib(ptRNA,pCodon,bias)
+    p_codon_count_hist_weighted_avg=cognateDistrib(ptRNA,pCodon)
     
     for j,gr_i in enumerate(gr_i_list):
         transport_vals_list = list()
