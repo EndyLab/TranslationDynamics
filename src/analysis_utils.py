@@ -475,9 +475,9 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
         transport_vals_list = list()
         reaction_vals_list = list()
         search_vals_list = list()
-        transport_std_list = list()
-        rxn_std_list = list()
-        search_std_list = list()
+        transport_var_list = list()
+        rxn_var_list = list()
+        search_var_list = list()
         
         #for range(1,7)
         for i in range(list(gr['gr_1'].keys())[0],list(gr['gr_1'].keys())[-1]+1):
@@ -485,17 +485,18 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
             rxn_vals = gr[gr_i][i].bootavg_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
             search_vals = gr[gr_i][i].bootavg_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
             
-            transport_std = gr[gr_i][i].bootstd_transportT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
-            rxn_std = gr[gr_i][i].bootstd_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
-            search_std = gr[gr_i][i].bootstd_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            ##To scale variance correctly, need to multiply by square of the constant being multiplied to the mean
+            transport_var = (gr[gr_i][i].bootstd_transportT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
+            rxn_var = (gr[gr_i][i].bootstd_rxnT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
+            search_var = (gr[gr_i][i].bootstd_searchT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
 
             transport_vals_list.append(np.array(transport_vals))
             reaction_vals_list.append(np.array(rxn_vals))
             search_vals_list.append(np.array(search_vals))
             
-            transport_std_list.append(np.array(transport_std))
-            rxn_std_list.append(np.array(rxn_std))
-            search_std_list.append(np.array(search_std))
+            transport_var_list.append(np.array(transport_var))
+            rxn_var_list.append(np.array(rxn_var))
+            search_var_list.append(np.array(search_var))
             
             search_list.append(np.array(gr[gr_i][i].searchT)*1000/1608733)
             print('Unweighted search time (', str(i), ' cognate)', np.array(search_vals/p_codon_count_hist_weighted_avg[i]))
@@ -503,9 +504,9 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
         reaction_phi.append(np.sum(reaction_vals_list))
         search_phi.append(np.sum(search_vals_list))
         
-        transport_std_phi.append(np.sum(transport_std_list))
-        rxn_std_phi.append(np.sum(rxn_std_list))
-        search_std_phi.append(np.sum(search_std_list))
+        transport_std_phi.append(np.sqrt(np.sum(transport_var_list)))
+        rxn_std_phi.append(np.sqrt(np.sum(rxn_var_list)))
+        search_std_phi.append(np.sqrt(np.sum(search_var_list)))
 
     print("Transport time: ", transport_phi, " +/- ", transport_std_phi)
     print("Reaction time: ", reaction_phi, " +/- ", rxn_std_phi)
@@ -663,7 +664,11 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 df=df.loc[df['rxn'].isin(["rxn22"])]
                 #print(df)
 
-                df=df.loc[:,['time','productB']]
+                df=df.loc[:,['time','productA','productB']]
+                #pd.set_option('display.max_rows', None)
+                df = df.sort_values(['productA','time'], ascending=[True, True])
+                #print(df)
+
                 reactant = '-1'
                 repeat=0
                 first = True
@@ -688,7 +693,7 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 print("missing expt")
                 print(expt_num)
     #print(rxn21_tot)
-    return np.average(rxn21_tot), np.std(rxn21_tot)
+    return np.average(rxn21_tot), np.std(rxn21_tot)/np.sqrt(len(rxn21_tot))
 
 def countIncorrectRepeatCollisions(path,expt_start,expt_end,equalRibosomes=False,ts_equillibrate=0, avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
@@ -750,10 +755,10 @@ class CellLatencies:
             self.bootavg_searchT = np.average(bootstrapped_search_avg)
             self.bootavg_transportT = np.average(bootstrapped_transport_avg)
             self.bootavg_rxnT = np.average(bootstrapped_rxn_avg)
-            #self.bootstd_searchT = np.std(bootstrapped_avg)
-            self.bootstd_searchT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_search_avg)-self.bootavg_searchT)**2)) #Standard error of means = bootstrap standard error
-            self.bootstd_transportT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_transport_avg)-self.bootavg_transportT)**2)) #Standard error of means = bootstrap standard error
-            self.bootstd_rxnT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_rxn_avg)-self.bootavg_rxnT)**2)) #Standard error of means = bootstrap standard error
+
+            #self.bootstd_searchT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_search_avg)-self.bootavg_searchT)**2)) #Standard error of means = bootstrap standard error. Calculated directly to include Bessel's correction
+            #self.bootstd_transportT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_transport_avg)-self.bootavg_transportT)**2)) #Standard error of means = bootstrap standard error
+            #self.bootstd_rxnT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_rxn_avg)-self.bootavg_rxnT)**2)) #Standard error of means = bootstrap standard error
 
 
 
