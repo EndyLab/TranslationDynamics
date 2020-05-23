@@ -481,14 +481,14 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
         
         #for range(1,7)
         for i in range(list(gr['gr_1'].keys())[0],list(gr['gr_1'].keys())[-1]+1):
-            transport_vals = gr[gr_i][i].bootavg_transportT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
-            rxn_vals = gr[gr_i][i].bootavg_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
-            search_vals = gr[gr_i][i].bootavg_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            transport_vals = gr[gr_i][i].avg_transportT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            rxn_vals = gr[gr_i][i].avg_rxnT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
+            search_vals = gr[gr_i][i].avg_searchT*1000/1608733*p_codon_count_hist_weighted_avg[i]#/(1-p_codon_count_hist_weighted_avg[0])
             
             ##To scale variance correctly, need to multiply by square of the constant being multiplied to the mean
-            transport_var = (gr[gr_i][i].bootstd_transportT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
-            rxn_var = (gr[gr_i][i].bootstd_rxnT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
-            search_var = (gr[gr_i][i].bootstd_searchT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
+            transport_var = (gr[gr_i][i].std_transportT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
+            rxn_var = (gr[gr_i][i].std_rxnT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
+            search_var = (gr[gr_i][i].std_searchT)**2*(1000/1608733*p_codon_count_hist_weighted_avg[i])**2#/(1-p_codon_count_hist_weighted_avg[0])
 
             transport_vals_list.append(np.array(transport_vals))
             reaction_vals_list.append(np.array(rxn_vals))
@@ -693,7 +693,7 @@ def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=
                 print("missing expt")
                 print(expt_num)
     #print(rxn21_tot)
-    return np.average(rxn21_tot), np.std(rxn21_tot)/np.sqrt(len(rxn21_tot))
+    return np.average(rxn21_tot), np.std(rxn21_tot)/np.sqrt(len(rxn21_tot)-1)
 
 def countIncorrectRepeatCollisions(path,expt_start,expt_end,equalRibosomes=False,ts_equillibrate=0, avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
@@ -741,25 +741,9 @@ class CellLatencies:
         self.avg_rxnT = np.average(self.rxnT)   
         self.avg_searchT = np.average(self.searchT)    
 
-        bootstrapped_search_avg = list()
-        bootstrapped_transport_avg = list()
-        bootstrapped_rxn_avg = list()
-
-        if bootstrap:
-            N=10000
-            for i in range(N):
-                bootstrapped_search_avg.append(np.average(np.random.choice(self.searchT,len(self.searchT))))
-                bootstrapped_transport_avg.append(np.average(np.random.choice(self.transportT,len(self.transportT))))
-                bootstrapped_rxn_avg.append(np.average(np.random.choice(self.rxnT,len(self.rxnT))))
-
-            self.bootavg_searchT = np.average(bootstrapped_search_avg)
-            self.bootavg_transportT = np.average(bootstrapped_transport_avg)
-            self.bootavg_rxnT = np.average(bootstrapped_rxn_avg)
-
-            #self.bootstd_searchT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_search_avg)-self.bootavg_searchT)**2)) #Standard error of means = bootstrap standard error. Calculated directly to include Bessel's correction
-            #self.bootstd_transportT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_transport_avg)-self.bootavg_transportT)**2)) #Standard error of means = bootstrap standard error
-            #self.bootstd_rxnT = np.sqrt(1/(N-1)*np.sum((np.array(bootstrapped_rxn_avg)-self.bootavg_rxnT)**2)) #Standard error of means = bootstrap standard error
-
+        self.std_transportT = np.std(self.transportT)/np.sqrt(len(self.transportT)-1)
+        self.std_searchT = np.std(self.searchT)/np.sqrt(len(self.searchT)-1)
+        self.std_rxnT = np.std(self.rxnT)/np.sqrt(len(self.rxnT)-1)
 
 
 def getTotalSuccessIncorpTime(path,expt_start,expt_end):

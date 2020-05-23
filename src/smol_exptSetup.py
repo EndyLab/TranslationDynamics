@@ -52,20 +52,21 @@ _accuracy_ =10
 res_steps=3
 _ts_=0.1e-3
 _molPosTS_ = 1.6e-2*100
-crowders = np.array([0])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([0]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.101*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
-cog_tRNA = np.array([1])
-non_cog_tRNA = np.array([0])
+crowders = np.array([820,820,820,820,820,820])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([7-1,7-1,7-1,7-1,7-1,7-1]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+cog_tRNA = np.array([1,2,3,4,5,6])
+non_cog_tRNA = np.array([42-1,42-2,42-3,42-4,42-5,42-6])
 _molPosTSStartCrowder_ =1000
+
 
 phi_sweep = list()
 for i in range(len(crowders)):
     phi_sweep.append((crowders[i],ribosomes[i],side_len[i],cog_tRNA[i]))
 
 i_max = 1
-k_max= 1
-j_max= 900
+k_max= 6
+j_max= 100
 for i in range(i_max):
 	for k in range (0, k_max):
 		_crowder_NUM_ = phi_sweep[k][0]

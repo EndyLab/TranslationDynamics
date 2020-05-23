@@ -1,6 +1,7 @@
 data/
 documentation/
 src/AWS_scripts/AWS_start.sh
+src/AWS_scripts/AWS_CA/AWS_start.sh
 calculations/OsmoticP/data/
 results/Animations/
 prikey.rtf
