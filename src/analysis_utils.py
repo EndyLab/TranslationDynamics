@@ -392,7 +392,7 @@ def cognateDistrib(ptRNA,pCodon):
     'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
 
     cells = 1
-    TU = 9500
+    voxels = 100000
     time = 180
     tRNA_distrib_arr = list()
     codon_count = {}
@@ -402,6 +402,8 @@ def cognateDistrib(ptRNA,pCodon):
     codon_count_hist = {}
     codon_count_hist_weighted_avg = np.zeros(42)
     p_codon_tRNA = {}
+
+    np.random.seed(0)
 
     for key in codon_dict:
         codon_count[key] = []
@@ -421,7 +423,7 @@ def cognateDistrib(ptRNA,pCodon):
 
     for cell in range(cells):
         # Generate distribution for cognate tRNA count for each codon
-        for i in range(TU):
+        for i in range(voxels):
 
             #Choose 1 random codon for tranlsation voxel (weighted by codon probabilities), and identify cognate and non cognate ternary complexes
             codon_vox = np.random.choice(codonLabels, 1)
@@ -515,7 +517,7 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
     return search_list,transport_phi, reaction_phi, search_phi, transport_std_phi,rxn_std_phi,search_std_phi
 
 
-def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
+def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=False):
     import numpy as np
 
     #arbitrarily pick rib_id = 0 as the matching ribosome
@@ -569,26 +571,23 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
         sys_t+=tRNA_reaction[tRNA_bound[0]]
         return sys_t,rxns,tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
 
-
+    reactionIDTracker = list()
     #### Loop while cognate tRNA isn't bound to cognate ribosome successfully
     while not cog_bind:
+
         ###Find next event (a tRNA unbinding from a ribosome) and jump the system to this time
         next_rib_time = min(react_time)
         next_rib = np.argmin(react_time)
         just_unbound_tRNA = tRNA_bound[next_rib]
-        
-        #Count number of times a ternary complex reacted with the matching ribosome
-        if(next_rib==0):
-            rxns+=1
+
 
         ##Adjust all pending reaction times by change in system time
         sys_t+= next_rib_time
         react_time = react_time - np.ones(rib_num)*next_rib_time
         
-        ##Pick new tRNA to be bound to recently unbound ribosome, based on whether repeat reactions are allowed or not
-        
-        unbound_tRNA_repeattransient = np.concatenate((tRNA_unbound,[just_unbound_tRNA]))
 
+        ##Pick new tRNA to be bound to recently unbound ribosome, based on whether repeat reactions are allowed or not
+        unbound_tRNA_repeattransient = np.concatenate((tRNA_unbound,[just_unbound_tRNA]))
         if repeatAllowed:
             if next_rib==0:
                 next_tRNA = np.random.choice(unbound_tRNA_repeattransient,size=1,replace=False,p=p_cogRib[unbound_tRNA_repeattransient]/sum(p_cogRib[unbound_tRNA_repeattransient]))
@@ -601,11 +600,16 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
             else:
                 next_tRNA = np.random.choice(tRNA_unbound,size=1,replace=False,p=p_noncogRib[tRNA_unbound]/sum(p_noncogRib[tRNA_unbound]))
 
-
         tRNA_bound[next_rib] = next_tRNA
         tRNA_unbound = [tRNA for tRNA in tRNA_id if tRNA not in tRNA_bound]
         
         
+        #Count number of times a ternary complex reacted with the matching ribosome
+        if(next_rib==0):
+            rxns+=1
+            if(next_tRNA != 0):
+                reactionIDTracker.append(next_tRNA[0])
+
         ## Check if newly bound ternary complex is the cognate bound to the matching ribosome, and if so, whether the reaction is successful 
         k_r = 717
         k_f= 1475
@@ -614,8 +618,11 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1):
                 rxnt = np.random.exponential(1000/k_f)
                 sys_t+= rxnt
                 tRNA_reaction[tRNA_bound[0]]+=rxnt
-                return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
-        
+                if not repeatTracker:
+                    return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
+                elif len(reactionIDTracker)>1000000:
+                    return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog]),reactionIDTracker
+
         ##Else, pick a mismatch reaction time for the newly bound tRNA
         rxnt = np.random.exponential(1000/k_r)
         react_time[next_rib] = rxnt

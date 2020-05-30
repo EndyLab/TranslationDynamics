@@ -84,41 +84,41 @@ frame_thickness 1
 #r1 corresponds to reactant 1, r2 to reactant 2.
 
 reaction rxn1 tRNA* + tRNA* -> tRNA* + tRNA*
-binding_radius rxn1 tRNAEfTu_RAD+tRNAEfTu_RAD-(2.50*(10^-6))
+binding_radius rxn1 tRNAEfTu_RAD+tRNAEfTu_RAD
 product_placement rxn1 bounce tRNAEfTu_RAD+tRNAEfTu_RAD
 
 reaction rxn2 ribosome* + ribosome* -> ribosome* + ribosome*
-binding_radius rxn2 ribosome_RAD+ribosome_RAD-(1.14*(10^-6))
+binding_radius rxn2 ribosome_RAD+ribosome_RAD
 product_placement rxn2 bounce ribosome_RAD+ribosome_RAD
 
 reaction rxn3 crowder + ribosome* -> crowder + ribosome*
-binding_radius rxn3 ribosome_RAD+crowder_RAD-(1.97*(10^-6))
+binding_radius rxn3 ribosome_RAD+crowder_RAD
 product_placement rxn3 bounce ribosome_RAD+crowder_RAD
 
 reaction rxn4 tRNA* + crowder -> tRNA* + crowder
-binding_radius rxn4 tRNAEfTu_RAD+crowder_RAD-(3.73*(10^-6))
+binding_radius rxn4 tRNAEfTu_RAD+crowder_RAD
 product_placement rxn4 bounce tRNAEfTu_RAD+crowder_RAD
 
 reaction rxn5 crowder + crowder -> crowder + crowder
-binding_radius rxn5 crowder_RAD+crowder_RAD-(7.37*(10^-6))
+binding_radius rxn5 crowder_RAD+crowder_RAD
 product_placement rxn5 bounce crowder_RAD+crowder_RAD
 
 reaction rxn6 tRNA_non + ribosome -> ribosome_non
-binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn6 r1.r2
 
-reaction rxn7 ribosome_non -> tRNA_non + ribosome 17925/1608733
+reaction rxn7 ribosome_non -> tRNA_non + ribosome 143400/1608733
 product_placement rxn7 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn7 r1L + r1R 
 
 reaction rxn17 tRNA_uni + ribosome_noreac -> ribosome_cog_uni
-binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn17 r1.r2
 
-reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 36875/1608733
+reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 295000/1608733
 
 ##Unsuccessful cognate reaction
-reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 17925/1608733
+reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 143400/1608733
 product_placement rxn19 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn19 r1L + r1R
 
@@ -126,25 +126,25 @@ reaction_serialnum rxn19 r1L + r1R
 #reaction rxn20 ribosome_suc_uni -> ribosome_inac #9600/1608733
 
 reaction rxn21 tRNA_uni + ribosome -> ribosome_non_uni
-binding_radius rxn21 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+binding_radius rxn21 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn21 r1.r2
 
-reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 17925/1608733
+reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 143400/1608733
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 r1L + r1R
 
 reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
-binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD
 reaction_serialnum rxn23 r1.r2
 
-reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 17925/1608733
+reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 143400/1608733
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn24 r1L + r1R 
 
 ##Bound ribosomes need to bounce##
 
 reaction rxn14 tRNA* + ribosome* -> tRNA* + ribosome*
-binding_radius rxn14 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+binding_radius rxn14 tRNAEfTu_RAD+ribosome_RAD
 product_placement rxn14 bounce tRNAEfTu_RAD+ribosome_RAD
 
 tiff_iter 1
