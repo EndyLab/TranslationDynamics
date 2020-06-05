@@ -219,6 +219,7 @@ class Cell:
 	def returnProperties(self):
 		return self.vol,[self.rib_volfrac,self.tern_volfrac,self.crowder_volfrac,self.volfrac_tot],[self.rib.num,self.tern.num,self.crowder.num]
 
+
 class Voxel:
 	''' Creates a voxel object, based on a cell object, that represents a nucleoid-excluded cube region of the cell cytoplasm where translation occurs.
 	Takes as input the number of ternary complexes that need to always be captured in the voxel.
@@ -240,7 +241,10 @@ class Voxel:
 		self.tern_volfrac = (self.numTern*Cell.tern.vol)/self.vol
 		self.crowder_volfrac = (self.numCrowder*Cell.crowder.vol)/self.vol
 		self.volfrac_tot = self.rib_volfrac + self.tern_volfrac+self.crowder_volfrac
-	
+
+		dispersity_numerator = (self.numRib*Cell.rib.rad**2+self.numTern*Cell.tern.rad**2+self.numCrowder*Cell.crowder.rad**2)/(self.numRib+self.numTern+self.numCrowder)
+		dispersity_denominator = ((self.numRib*Cell.rib.rad+self.numTern*Cell.tern.rad+self.numCrowder*Cell.crowder.rad)/(self.numRib+self.numTern+self.numCrowder))
+		self.dispersity = np.sqrt(dispersity_numerator/(dispersity_denominator**2)-1)
 	def printProperties(self):
 		print("\n Volume: ", self.vol,"\n Voxel length: ", self.size, "\n Rib vol frac: ", self.rib_volfrac,
 			 "\n Tern vol frac:", self.tern_volfrac, "\n Crowder vol frac: ", self.crowder_volfrac, 
@@ -248,4 +252,4 @@ class Voxel:
 			  "\n Voxel num rib: ", self.numRib, "\n Voxel num crowder: ", self.numCrowder)
 		
 	def returnProperties(self):
-		return self.size,[self.rib_volfrac,self.tern_volfrac,self.crowder_volfrac,self.volfrac_tot],[self.numRib,self.numTern,self.numCrowder]
+		return self.size,[self.rib_volfrac,self.tern_volfrac,self.crowder_volfrac,self.volfrac_tot,self.dispersity],[self.numRib,self.numTern,self.numCrowder]

@@ -517,12 +517,14 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
     return search_list,transport_phi, reaction_phi, search_phi, transport_std_phi,rxn_std_phi,search_std_phi
 
 
-def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=False):
+def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=False,seed=0):
     import numpy as np
 
     #arbitrarily pick rib_id = 0 as the matching ribosome
     #arbitrarily pick tRNA ids 0 to tRNA_cog as cognate tRNAs
     tRNA_id=np.arange(42)
+
+    np.random.seed(seed)
     
     elong_times = list()
     cog_bind=False;
