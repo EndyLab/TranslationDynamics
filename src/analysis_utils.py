@@ -263,6 +263,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     rxn21_tot = list()
     ribosome_reaction_time = list()
     print("Computing...")
+    #scaling = scaling*(8/40*4.6+32/40*1.4)/1.4 ##Adjust scaling to account for near-cognate ternary complexes
     for expt_num, row in df_outputs.iterrows():
         succincorp_count = 0
         rxn17_count = 0
@@ -345,6 +346,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 #the time the cognate tRNA spends in transport also reduces by 10x since ribosomes are available to be bound quicker.
                 #i.e., if ribosomes are all bound by othe non-cognates for 10x longer, the cognate tRNA spends 10x longer in transport time.
                 #transport_time.append([np.sum(transport_time_i)])
+
                 transport_time.append([np.sum(rib_reaction_time_i)*scaling+np.sum(rib_unbound_time_i) - np.sum(reaction_time_i)*scaling])
                 reaction_time.append([np.sum(reaction_time_i)*scaling])
                 #search_time.append([np.sum(transport_time_i)+np.sum(reaction_time_i)*scaling])
@@ -445,6 +447,120 @@ def cognateDistrib(ptRNA,pCodon):
             #Count how many cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
             codon_count_i = 0
             for tRNA in cognatetRNA:
+                codon_count_i += tRNA_vox.count(tRNA)
+            codon_count[codon_vox[0]].append(codon_count_i)
+
+        for codon in codon_count:
+            #Generate histogram of cognate tRNA counts for each codon
+            codon_count_hist[codon] = np.histogram(codon_count[codon], bins=np.arange(0,43))[0]/sum(np.histogram(codon_count[codon], bins=np.arange(0,43))[0])
+
+            #Weight histogram by codon probabilities to generate weighted average histogram for all codon
+            codon_count_hist_weighted_avg += codon_count_hist[codon]*pcodon_dict[codon]
+        p_codon_count_hist_weighted_avg = codon_count_hist_weighted_avg
+        #print(p_codon_count_hist_weighted_avg)
+    return p_codon_count_hist_weighted_avg
+
+def neighbors(codon):
+    neighbor_codons = list()
+    bases = ['A', 'U', 'C', 'G']
+    for base in bases:
+        bases = ['A', 'U', 'C', 'G']
+        if codon[0] == base:
+            sub_bases = [i for i in bases if i!=base]
+            for sub_base in sub_bases:
+                neighbor_codons.append(sub_base+codon[1:])
+                
+        bases = ['A', 'U', 'C', 'G']
+        if codon[1] == base:
+            sub_bases = [i for i in bases if i!=base]
+            for sub_base in sub_bases:
+                neighbor_codons.append(codon[0]+sub_base+codon[2])
+    return neighbor_codons
+
+def nearcognateDistrib(ptRNA,pCodon):
+
+    ptRNA = np.divide(ptRNA,sum(ptRNA))
+    pCodon= np.divide(pCodon, sum(pCodon))
+
+    tRNA_tags = ["Ala1B", "Ala2", "Arg2", "Arg3", "Arg4", "Arg5", "Asn", "Asp1", "Cys", "Gln1", "Gln2", \
+    "Glu2", "Gly2", "Gly3", "His", "Ile1", "Leu1", "Leu2", "Leu3", "Leu4", "Leu5", "Lys", \
+    "Met_m", "Phe", "Pro1", "Pro2", "Pro3", "Sel_Cys", "Ser1", "Ser2", "Ser3", "Ser5", "Thr1", \
+    "Thr2", "Thr3", "Thr4", "Trp", "Tyr1pTyr2", "Val1", "Val2ApB"]
+
+    ptRNA_dict = dict(zip(tRNA_tags, ptRNA))
+    
+    codonLabels = pd.read_excel('codonValues.xlsx',header=None)[5]
+    pcodon_dict = dict(zip(codonLabels,pCodon))
+
+    #Note AUA does not have an assigned tRNA
+    codon_dict={'GGG': ['Gly2'], 'GGA': ['Gly2'], 'GGU': ['Gly3'], 'GGC': ['Gly3'], \
+    'GAG': ['Glu2'], 'GAA': ['Glu2'], 'GAU': ['Asp1'], 'GAC': ['Asp1'], \
+    'GUG': ['Val1'], 'GUA': ['Val1'], 'GUU': ['Val1','Val2ApB'], \
+    'GUC': ['Val2ApB'], 'GCG': ['Ala1B'], 'GCA': ['Ala1B'], 'GCU': ['Ala1B'], \
+    'GCC': ['Ala2'], 'AGG': ['Arg5'], 'AGA': ['Arg4'], 'AGU': ['Ser3'], \
+    'AGC': ['Ser3'], 'AAG': ['Lys'], 'AAA': ['Lys'], 'AAU': ['Asn'], \
+    'AAC': ['Asn'], 'AUG': ['Met_m'], 'AUA': [], 'AUU': ['Ile1'], \
+    'AUC': ['Ile1'], 'ACG': ['Thr2','Thr4'], 'ACA': ['Thr4'], \
+    'ACU': ['Thr1','Thr4','Thr3'], 'ACC': ['Thr3','Thr1'], \
+    'UGG': ['Trp'], 'UGA': ['Sel_Cys'], 'UGU': ['Cys'], 'UGC': ['Cys'], \
+    'UAU': ['Tyr1pTyr2'], 'UAC': ['Tyr1pTyr2'], 'UUG': ['Leu5','Leu4'], \
+    'UUA': ['Leu5'], 'UUU': ['Phe'], 'UUC': ['Phe'], 'UCG': ['Ser1','Ser2'], \
+    'UCA': ['Ser1'], 'UCU': ['Ser5','Ser1'], 'UCC': ['Ser5'], 'CGG': ['Arg3'], \
+    'CGA': ['Arg2'], 'CGU': ['Arg2'], 'CGC': ['Arg2'], 'CAG': ['Gln2'], \
+    'CAA': ['Gln1'], 'CAU': ['His'], 'CAC': ['His'], 'CUG': ['Leu1','Leu3'], \
+    'CUA': ['Leu3'], 'CUU': ['Leu2'], 'CUC': ['Leu2'], 'CCG': ['Pro1','Pro3'], \
+    'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
+
+    cells = 1
+    voxels = 100000
+    time = 180
+    tRNA_distrib_arr = list()
+    codon_count = {}
+    codon_time = {}
+    codon_time_avg = {}
+    codon_time_weighted_avg={}
+    codon_count_hist = {}
+    codon_count_hist_weighted_avg = np.zeros(42)
+    p_codon_tRNA = {}
+
+    np.random.seed(0)
+
+    for key in codon_dict:
+        codon_count[key] = []
+        codon_time[key] = []
+        codon_time_avg[key] = []
+        codon_time_weighted_avg[key]=[]
+        codon_count_hist[key]=[]
+        p_codon_tRNA[key] = []
+
+    # Construct dictionary that assigns probability of all tRNA specific to a certain codon
+    # to that codon (p_codon_tRNA)
+    for codon in codon_dict:
+        p_codon_tRNA_i = 0
+        for tRNA in codon_dict[codon]:
+            p_codon_tRNA_i += ptRNA_dict[tRNA]
+        p_codon_tRNA[codon].append(p_codon_tRNA_i)
+
+    for cell in range(cells):
+        # Generate distribution for cognate tRNA count for each codon
+        for i in range(voxels):
+
+            #Choose 1 random codon for translation voxel (weighted by codon probabilities), and identify cognate and non cognate ternary complexes
+            codon_vox = np.random.choice(codonLabels, 4)
+            
+            cognatetRNA = codon_dict[codon_vox[0]]
+            nearcognatetRNA = list()
+            for codon in neighbors(codon_vox[0]):
+                if(codon in codon_dict):
+                    for tRNA in codon_dict[codon]:
+                        nearcognatetRNA.append(tRNA)
+            #Construct translation voxel (weighted by specific tRNA abundances and bias)
+            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=ptRNA))
+
+
+            #Count how many near-cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
+            codon_count_i = 0
+            for tRNA in nearcognatetRNA:
                 codon_count_i += tRNA_vox.count(tRNA)
             codon_count[codon_vox[0]].append(codon_count_i)
 

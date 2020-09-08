@@ -19,10 +19,9 @@ _ribosome_nr_NUM_ = 0
 _ribosome_non_NUM_ = 0
 _ribosome_suc_NUM_ = 0
 _ribosome_inac_NUM_ = 0
-_ribosome_noreac_NUM_ = 1
-_tRNA_uni_NUM_ = 1
+_ribosome_noreac_NUM_ = 0#8
+_tRNA_uni_NUM_ = 0
 
-_simtime_ = 1.6e-3*1e5+1000
 _molPosTS_ = 1e-04
 
 _seed_ =  (np.random.randint(1e12))
@@ -49,15 +48,15 @@ _seed_list = range(0,10000,5)
 
 _boxsize_=3.9
 _accuracy_ =10
-res_steps=1
+res_steps=1000
 _ts_=0.1e-3
 _molPosTS_ = 1.6e-2*100
-crowders = np.array([820,0,0,0,0,0])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([7-1,7-1,7-1,7-1,7-1,7-1]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
-cog_tRNA = np.array([1,2,3,4,5,6])
-non_cog_tRNA = np.array([42-1,42-2,42-3,42-4,42-5,42-6])
-_molPosTSStartCrowder_ =1000
+crowders = np.array([0,0,0,0,0,0])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([0,8-1,8-1,8-1,8-1,8-1]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.0677*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059,0.072*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+cog_tRNA = np.array([0,0,0,0,0,0])
+non_cog_tRNA = np.array([420,42-2,42-3,42-4,42-5,42-6])
+_molPosTSStartCrowder_ =2
 
 
 phi_sweep = list()
@@ -80,7 +79,7 @@ for i in range(i_max):
 		_ts_rxnon_ = 0
 		_ts_diffon_= _ts_*(res_steps-1)
 		_ts_delta_= _ts_*res_steps
-		_simtime_ = 1.6e7
+		_simtime_ = 0.3e-3
 
 		for j in range(0, j_max):
 			_seed_ = _seed_list[j]
