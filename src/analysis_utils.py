@@ -4,6 +4,7 @@ import sys
 import math
 import pickle as pkl
 import glob
+import matplotlib.pyplot as plt
 
 
 def readSimData(path):
@@ -237,7 +238,7 @@ def hitTimePickleAggregator(datapath,expts):
             print("Missing experiment")
     return [i for hitTimes_i in hitTimes for i in hitTimes_i]
 
-def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
+def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False, cogtRNANum = 1, ribosomeNum = 1, scaling=1, NR_scaling = {'k1r':718,'k2f':1475,'k2r_nr':1120,'k3_nr':6,'k4':209}):
     """Calculates transport (how long particular tRNA unbound) and 
     reaction times (how long particular tRNA bound) from simulations
     
@@ -263,6 +264,9 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     rxn21_tot = list()
     ribosome_reaction_time = list()
     print("Computing...")
+    NR_tRNA = int(round(8/42*(42-cogtRNANum)))+(ribosomeNum-1) #Non-matching ribosomes make up the first ribosomeNum-1 labels
+    NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
+    reactantarray = list()
     #scaling = scaling*(8/40*4.6+32/40*1.4)/1.4 ##Adjust scaling to account for near-cognate ternary complexes
     for expt_num, row in df_outputs.iterrows():
         succincorp_count = 0
@@ -283,8 +287,8 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 df_rib = df[df['rxn'].isin(["rxn17","rxn18","rxn23","rxn24"])]
                 df=df[df['reactantA'].apply(str).str.split('.').str[0].apply(int)==df_succ_tRNA_id]
 
-                df=df[['time','rxn']]
-                df_rib = df_rib[['time','rxn']]
+                df=df[['time','rxn', 'reactantA','productA']]
+                df_rib = df_rib[['time','rxn','reactantA','productA']]
 
                 ## Calculate elong time from tracking succesful ribosome
                 rib_reaction_time_i = list()
@@ -293,13 +297,17 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 for _,row in df_rib.iterrows():
                     i+=1
                     if(row['rxn']=='rxn23'):
-                        rib_reaction_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
+                        if(int(row['reactantA'])<=NR_tRNA):
+                           # reactantarray.append(int(row['reactantA']))
+                            rib_reaction_time_i.append(NR_SCALINGFACTOR*(float(df_rib.iloc[[i+1]]['time'])-row['time']))
+                        else:
+                            rib_reaction_time_i.append(1*(float(df_rib.iloc[[i+1]]['time'])-row['time']))
                     if(row['rxn']=='rxn24'):
                         rib_unbound_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
                     if(row['rxn']=='rxn17'):
-                        if(i==0):
-                            rib_unbound_time_i.append(float(row['time']))
-                        rib_reaction_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
+                         if(i==0):
+                             rib_unbound_time_i.append(float(row['time']))
+                         rib_reaction_time_i.append(float(df_rib.iloc[[i+1]]['time'])-row['time'])
                 #print(np.sum(rib_reaction_time_i),'\n',np.sum(rib_unbound_time_i))
 
                 transport_time_i = list()
@@ -346,18 +354,68 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
                 #the time the cognate tRNA spends in transport also reduces by 10x since ribosomes are available to be bound quicker.
                 #i.e., if ribosomes are all bound by othe non-cognates for 10x longer, the cognate tRNA spends 10x longer in transport time.
                 #transport_time.append([np.sum(transport_time_i)])
-
                 transport_time.append([np.sum(rib_reaction_time_i)*scaling+np.sum(rib_unbound_time_i) - np.sum(reaction_time_i)*scaling])
                 reaction_time.append([np.sum(reaction_time_i)*scaling])
                 #search_time.append([np.sum(transport_time_i)+np.sum(reaction_time_i)*scaling])
                 search_time.append([np.sum(rib_reaction_time_i)*scaling+np.sum(rib_unbound_time_i)])
                 success_incorp.append([np.sum(succincorp_count)])
-
             except:
                 print("missing expt")
                 print(expt_num)
-
+    #print(plt.hist(reactantarray,bins=np.arange(50)))
     return transport_time, reaction_time, success_incorp,rxn17_tot,rxn21_tot, search_time
+
+
+def computeNRLatency(NR_scaling = {'k1r':718,'k2f':1475,'k2r_nr':1120,'k3_nr':6,'k4':209}):
+    t1r = 1000/NR_scaling['k1r']
+    t2f = 1000/NR_scaling['k2f']
+    t2r_nr = 1000/NR_scaling['k2r_nr']
+    t3_nr = 1000/NR_scaling['k3_nr']
+    t4 = 1000/NR_scaling['k4']
+
+    t1r_exp=np.random.exponential(t1r,size=4000)
+    t2f_exp=np.random.exponential(t2f,size=4000)
+    t2r_nr_exp=np.random.exponential(t2r_nr,size=4000)
+    t3_nr_exp=np.random.exponential(t3_nr,size=4000)
+    t4_exp=np.random.exponential(t4,size=4000)
+
+        #Near-cognate calculation
+    dwelltime_nr_success = list()
+    dwelltime_nr_fail = list()
+    success_count = 0
+    fail_count = 0
+
+    t2f_exp=np.random.exponential(t2f,size=4000)
+
+    for i in range(10000):
+        dwell_t = 0
+        state=1
+        while state != 0 and state != 3:
+            dwell_t1r = np.random.choice(t1r_exp)
+            dwell_t2f = np.random.choice(t2f_exp)
+            if state==1:
+                if dwell_t1r<dwell_t2f: 
+                    dwell_t+=np.random.choice(t1r_exp)
+                    dwelltime_nr_fail.append(dwell_t)
+                    state=0
+                    fail_count += 1
+                else:
+                    dwell_t+=np.random.choice(t2f_exp)
+                    state = 2
+                    
+            if state==2:
+                dwell_t2r_nr = np.random.choice(t2r_nr_exp)
+                dwell_t3_nr = np.random.choice(t3_nr_exp)
+                if dwell_t2r_nr < dwell_t3_nr:
+                    dwell_t+= np.random.choice(t2r_nr_exp)
+                    state = 1
+                else:
+                    dwell_t += np.random.choice(t3_nr_exp)
+                    state = 3
+                    dwelltime_nr_success.append(dwell_t)
+                    success_count+=1
+                    
+    return np.mean(dwelltime_nr_fail)
 
 def cognateDistrib(ptRNA,pCodon):
 
