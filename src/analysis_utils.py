@@ -832,6 +832,31 @@ def countIncorrectReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,
 
     return np.average(rxn21_tot), np.std(rxn21_tot)
 
+def countUnsuccesfulCognateReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
+    df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
+
+    rxn19_tot = list()
+    print("test")
+    for expt_num, row in df_outputs.iterrows():
+
+        rxn19_count = 0
+        if(expt_num>=expt_start and expt_num<expt_end):
+            try:
+                my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
+                df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
+                df=df.loc[df['rxn'].isin(["rxn19"])]
+                rxn19_count = df.shape[0]
+                rxn19_tot.append(rxn19_count)
+
+                #print(df.shape[0])
+
+            except:
+                print("missing expt")
+                print(expt_num)
+    #print(rxn21_tot)
+
+    return np.average(rxn19_tot), np.std(rxn19_tot)
+
 
 def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
