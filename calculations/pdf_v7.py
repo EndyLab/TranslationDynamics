@@ -41,23 +41,23 @@ def calcPairDistribFunc(path,expt_start,expt_end,species1,species2, max_distvalu
     
 ### make dictionary
 def initialize_counts_dic(binsval):
-	#initialize the "internal" dict counts
-	count_dic={}
-	for ii in range(binsval+1):
-		count_dic[ ii ] = 0
-	return count_dic      
-	
+    #initialize the "internal" dict counts
+    count_dic={}
+    for ii in range(binsval+1):
+        count_dic[ ii ] = 0
+    return count_dic      
+    
 
 def histgen(distvalues, dr, max_distvalue, voxlength):
-	binsval = int(voxlength/dr)
-	histdict = initialize_counts_dic(binsval)
-	totcount = 0
-	for i in range(len(distvalues)):
-		dum = int(distvalues[i]//dr)
-		if dum <= binsval:
-			histdict[dum] += 1
-			totcount += 1
-	return (histdict, totcount)
+    binsval = int(voxlength/dr)
+    histdict = initialize_counts_dic(binsval)
+    totcount = 0
+    for i in range(len(distvalues)):
+        dum = int(distvalues[i]//dr)
+        if dum <= binsval:
+            histdict[dum] += 1
+            totcount += 1
+    return (histdict, totcount)
 
 def pdfgen(voxlength, dr, numdens, histogram,expnum):
     pdfvalgr = []
@@ -73,11 +73,11 @@ def pdfgen(voxlength, dr, numdens, histogram,expnum):
     return (pdfvalgr)      
 
 path = '/Users/Akshay/Documents/TranslationDynamics/data/'
-data = '200708_1545' #'200708_1100'
+data = '191010_1846' #'200708_1100'
 
-gr=[3.0] #0.6,1.0,1.5,2.0,2.5,3.0]# doubling rate
-vox =[0.0677*1/0.0059] #0.101*1/0.0059,0.0929*1/0.0059,0.0842*1/0.0059,0.0774*1/0.0059,0.072*1/0.0059,0.0677*1/0.0059] 
-expnum = 20
+gr=[0.6] #0.6,1.0,1.5,2.0,2.5,3.0]# doubling rate
+vox =[0.101*1/0.0059] #0.101*1/0.0059,0.0929*1/0.0059,0.0842*1/0.0059,0.0774*1/0.0059,0.072*1/0.0059,0.0677*1/0.0059] 
+expnum = 100
 
 max_dist = []
 for i in range(len(vox)):
@@ -89,11 +89,11 @@ dist={}
 
 for i in range(0,len(gr)):
     if i<len(gr):
-    	print('gr:', gr[i])
-    	dist[gr[i]] = calcPairDistribFunc(path+data+'/',expnum*i,expnum*(i+1),3,3, max_dist[i]) #experiment number hardcoded & species hardcoded (3,11)
+        print('gr:', gr[i])
+        dist[gr[i]] = calcPairDistribFunc(path+data+'/',expnum*i,expnum*(i+1),3,11, max_dist[i]) #experiment number hardcoded & species hardcoded (3,11)
 #plt.hist(dist[gr[0]])
 #plt.savefig('test000.jpg')
-bins = 30
+bins = 100
 dr = vox[0]/bins
 
 histgr = {}
@@ -112,13 +112,15 @@ plt.bar(histgr[gr[jj]].keys(),histgr[gr[jj]].values())
 plt.savefig('test001.jpg')
 
 for jj in range(len(gr)):
-	print( pdfval[gr[jj]])
+    print(pdfval[gr[jj]])
+    print([i[1] for i in pdfval[gr[jj]]])
 
-print(pdfval[gr[0]][0][0])
+print(pdfval[gr[0]][0])
+
 
 #print('hi',dist[0.6])
 #plt.hist(dist[0.6],density=True)
 #plt.savefig('test111.jpg')
-#print(np.average(dist[0.6]))#,np.average(dist[1.0]),np.average(dist[1.5]),np.average(dist[2.0]),np.average(dist[2.5]),np.average(dist[3.0]))
-#print(np.std(dist[0.6]))#/np.sqrt((len(dist[0.6])-1)),np.std(dist[1.0])/np.sqrt((len(dist[1.0])-1)),np.std(dist[1.5])/np.sqrt((len(dist[1.5])-1)),np.std(dist[2.0])/np.sqrt((len(dist[2.0])-1)),np.std(dist[2.5])/np.sqrt((len(dist[2.5])-1)),np.std(dist[3.0])/np.sqrt((len(dist[3.0])-1)))
+#print('hi',np.average(dist[0.6]),np.average(dist[1.0]),np.average(dist[1.5]),np.average(dist[2.0]),np.average(dist[2.5]),np.average(dist[3.0]))
+#print('yo',np.std(dist[0.6])/np.sqrt((len(dist[0.6])-1)),np.std(dist[1.0])/np.sqrt((len(dist[1.0])-1)),np.std(dist[1.5])/np.sqrt((len(dist[1.5])-1)),np.std(dist[2.0])/np.sqrt((len(dist[2.0])-1)),np.std(dist[2.5])/np.sqrt((len(dist[2.5])-1)),np.std(dist[3.0])/np.sqrt((len(dist[3.0])-1)))
 
