@@ -263,7 +263,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     rxn17_tot = list()
     rxn21_tot = list()
     ribosome_reaction_time = list()
-    print("Computing...")
+    print("Computing...") #Should be 42-(cogtRNANum-2)
     NR_tRNA = int(round(8/42*(42-cogtRNANum)))+(ribosomeNum-1) #Non-matching ribosomes make up the first ribosomeNum-1 labels
     NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
     reactantarray = list()
@@ -518,6 +518,82 @@ def cognateDistrib(ptRNA,pCodon):
         #print(p_codon_count_hist_weighted_avg)
     return p_codon_count_hist_weighted_avg
 
+def matchingRibosomeDistrib(ptRNA,pCodon):
+
+    ptRNA = np.divide(ptRNA,sum(ptRNA))
+    pCodon= np.divide(pCodon, sum(pCodon))
+
+    tRNA_tags = ["Ala1B", "Ala2", "Arg2", "Arg3", "Arg4", "Arg5", "Asn", "Asp1", "Cys", "Gln1", "Gln2", \
+    "Glu2", "Gly2", "Gly3", "His", "Ile1", "Leu1", "Leu2", "Leu3", "Leu4", "Leu5", "Lys", \
+    "Met_m", "Phe", "Pro1", "Pro2", "Pro3", "Sel_Cys", "Ser1", "Ser2", "Ser3", "Ser5", "Thr1", \
+    "Thr2", "Thr3", "Thr4", "Trp", "Tyr1pTyr2", "Val1", "Val2ApB"]
+
+    ptRNA_dict = dict(zip(tRNA_tags, ptRNA))
+    
+    codonLabels = pd.read_excel('codonValues.xlsx',header=None)[5]
+    pcodon_dict = dict(zip(codonLabels,pCodon))
+
+    #Note AUA does not have an assigned tRNA
+    codon_dict={'GGG': ['Gly2'], 'GGA': ['Gly2'], 'GGU': ['Gly3'], 'GGC': ['Gly3'], \
+    'GAG': ['Glu2'], 'GAA': ['Glu2'], 'GAU': ['Asp1'], 'GAC': ['Asp1'], \
+    'GUG': ['Val1'], 'GUA': ['Val1'], 'GUU': ['Val1','Val2ApB'], \
+    'GUC': ['Val2ApB'], 'GCG': ['Ala1B'], 'GCA': ['Ala1B'], 'GCU': ['Ala1B'], \
+    'GCC': ['Ala2'], 'AGG': ['Arg5'], 'AGA': ['Arg4'], 'AGU': ['Ser3'], \
+    'AGC': ['Ser3'], 'AAG': ['Lys'], 'AAA': ['Lys'], 'AAU': ['Asn'], \
+    'AAC': ['Asn'], 'AUG': ['Met_m'], 'AUA': [], 'AUU': ['Ile1'], \
+    'AUC': ['Ile1'], 'ACG': ['Thr2','Thr4'], 'ACA': ['Thr4'], \
+    'ACU': ['Thr1','Thr4','Thr3'], 'ACC': ['Thr3','Thr1'], \
+    'UGG': ['Trp'], 'UGA': ['Sel_Cys'], 'UGU': ['Cys'], 'UGC': ['Cys'], \
+    'UAU': ['Tyr1pTyr2'], 'UAC': ['Tyr1pTyr2'], 'UUG': ['Leu5','Leu4'], \
+    'UUA': ['Leu5'], 'UUU': ['Phe'], 'UUC': ['Phe'], 'UCG': ['Ser1','Ser2'], \
+    'UCA': ['Ser1'], 'UCU': ['Ser5','Ser1'], 'UCC': ['Ser5'], 'CGG': ['Arg3'], \
+    'CGA': ['Arg2'], 'CGU': ['Arg2'], 'CGC': ['Arg2'], 'CAG': ['Gln2'], \
+    'CAA': ['Gln1'], 'CAU': ['His'], 'CAC': ['His'], 'CUG': ['Leu1','Leu3'], \
+    'CUA': ['Leu3'], 'CUU': ['Leu2'], 'CUC': ['Leu2'], 'CCG': ['Pro1','Pro3'], \
+    'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
+
+    cells = 1
+    voxels = 100000
+    time = 180
+    tRNA_distrib_arr = list()
+    codon_count = {}
+    codon_time = {}
+    codon_time_avg = {}
+    codon_time_weighted_avg={}
+    codon_count_hist = {}
+    codon_count_hist_weighted_avg = np.zeros(42)
+    p_codon_tRNA = {}
+
+    np.random.seed(0)
+    duplicate_codons = 0
+
+    for key in codon_dict:
+        codon_count[key] = []
+        codon_time[key] = []
+        codon_time_avg[key] = []
+        codon_time_weighted_avg[key]=[]
+        codon_count_hist[key]=[]
+        p_codon_tRNA[key] = []
+
+    # Construct dictionary that assigns probability of all tRNA specific to a certain codon
+    # to that codon (p_codon_tRNA)
+    for codon in codon_dict:
+        p_codon_tRNA_i = 0
+        for tRNA in codon_dict[codon]:
+            p_codon_tRNA_i += ptRNA_dict[tRNA]
+        p_codon_tRNA[codon].append(p_codon_tRNA_i)
+
+    for cell in range(cells):
+        # Generate distribution for cognate tRNA count for each codon
+        for i in range(voxels):
+
+            #Choose 1 random codon for tranlsation voxel (weighted by codon probabilities), and identify cognate and non cognate ternary complexes
+            codon_vox = np.random.choice(codonLabels, 9)
+            if len(np.unique(codon_vox)) != len(codon_vox):
+                duplicate_codons+=1
+
+    return duplicate_codons/voxels
+
 def neighbors(codon):
     neighbor_codons = list()
     bases = ['A', 'U', 'C', 'G']
@@ -694,8 +770,8 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
 def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=False,seed=0):
     import numpy as np
 
-    #arbitrarily pick rib_id = 0 as the matching ribosome
-    #arbitrarily pick tRNA ids 0 to tRNA_cog as cognate tRNAs
+    #arbitrarily assign rib_id = 0 as the matching ribosome
+    #arbitrarily assign tRNA ids 0 to tRNA_cog as cognate tRNAs
     tRNA_id=np.arange(42)
 
     np.random.seed(seed)
@@ -731,8 +807,18 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=
     ## For each ribosome, now with a reacting tRNA, pick an exponential random time until dissociation 
     #(assuming cognate ternary complex hasn't bound to matching ribosome)
     # Ribosome array index 0 is the cognate ribosome, which is bound for time react_time[0]
+    # We account for near-cognate ternary complexes by assigning a physiologically accurate proportion of the react_time distribution to have the near cognate unbinding rate (k_nr_r) 
     k_r = 717
-    react_time = np.random.exponential(1000/k_r,rib_num)
+    NR_tRNA = int(round(8/42*(42-(cogtRNANum-2)))) #Near-cognates make up 8/42 of ternary complexes on average (with 2 cognate ternary complexes on average)
+    NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
+    k_nr_r = 717
+    react_time = list()
+    for i in range(rib_num):
+        if np.random() < NR_tRNA/42:
+            react_time.append(np.random.exponential(1000/k_nr_r))
+        else:
+            react_time.append(np.random.exponential(1000/k_r))
+    react_time = np.array(react_time)
 
     ##Tracking reaction latencies for each ternary complex (i.e., total time each ternary complex spends bound). Transport latency is directly computed from total sim time.
     tRNA_reaction = np.zeros(42)
@@ -1196,8 +1282,8 @@ def calcPairDistances(path,expt_start,expt_end,species1,species2, max_distvalue,
                             distance_i.append(dist_mag)
                             if(mode == 'avg'):
                             	distance.append(dist_mag)
-                if(mode == 'nearest'):
-                    distance.append(min(distance_i))
+                    if(mode == 'nearest'):
+                        distance.append(min(distance_i))
             except:
                 print("Error on expt ", expt_num)
     return distance
