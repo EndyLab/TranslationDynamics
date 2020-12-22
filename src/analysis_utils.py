@@ -263,8 +263,8 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     rxn17_tot = list()
     rxn21_tot = list()
     ribosome_reaction_time = list()
-    print("Computing...") #Should be 42-(cogtRNANum-2)
-    NR_tRNA = int(round(8/42*(42-cogtRNANum)))+(ribosomeNum-1) #Non-matching ribosomes make up the first ribosomeNum-1 labels
+    print("Computing...") 
+    NR_tRNA = int(round(8/42*(42-(cogtRNANum-2))))+(ribosomeNum-1) #Non-matching ribosomes make up the first ribosomeNum-1 labels
     NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
     reactantarray = list()
     #scaling = scaling*(8/40*4.6+32/40*1.4)/1.4 ##Adjust scaling to account for near-cognate ternary complexes
@@ -417,7 +417,7 @@ def computeNRLatency(NR_scaling = {'k1r':718,'k2f':1475,'k2r_nr':1120,'k3_nr':6,
                     
     return np.mean(dwelltime_nr_fail)
 
-def cognateDistrib(ptRNA,pCodon):
+def cognateDistrib(ptRNA,pCodon, extra = False):
 
     ptRNA = np.divide(ptRNA,sum(ptRNA))
     pCodon= np.divide(pCodon, sum(pCodon))
@@ -451,16 +451,20 @@ def cognateDistrib(ptRNA,pCodon):
     'CUA': ['Leu3'], 'CUU': ['Leu2'], 'CUC': ['Leu2'], 'CCG': ['Pro1','Pro3'], \
     'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
 
+    if extra:
+        return ptRNA_dict, pcodon_dict, codon_dict, codonLabels, pCodon
+
     cells = 1
     voxels = 100000
     time = 180
+    N=42
     tRNA_distrib_arr = list()
     codon_count = {}
     codon_time = {}
     codon_time_avg = {}
     codon_time_weighted_avg={}
     codon_count_hist = {}
-    codon_count_hist_weighted_avg = np.zeros(42)
+    codon_count_hist_weighted_avg = np.zeros(N)
     p_codon_tRNA = {}
 
     np.random.seed(0)
@@ -499,7 +503,7 @@ def cognateDistrib(ptRNA,pCodon):
             #biased_ptRNA = biased_ptRNA/sum(biased_ptRNA)
 
             #Construct translation voxel (weighted by specific tRNA abundances and bias)
-            tRNA_vox = list(np.random.choice(tRNA_tags,42,p=ptRNA))
+            tRNA_vox = list(np.random.choice(tRNA_tags,N,p=ptRNA))
 
 
             #Count how many cognate tRNA appeared in the translation unit (for given codon) and record in codon_count
@@ -510,12 +514,14 @@ def cognateDistrib(ptRNA,pCodon):
 
         for codon in codon_count:
             #Generate histogram of cognate tRNA counts for each codon
-            codon_count_hist[codon] = np.histogram(codon_count[codon], bins=np.arange(0,43))[0]/sum(np.histogram(codon_count[codon], bins=np.arange(0,43))[0])
+            codon_count_hist[codon] = np.histogram(codon_count[codon], bins=np.arange(0,N+1))[0]/sum(np.histogram(codon_count[codon], bins=np.arange(0,N+1))[0])
 
             #Weight histogram by codon probabilities to generate weighted average histogram for all codon
             codon_count_hist_weighted_avg += codon_count_hist[codon]*pcodon_dict[codon]
         p_codon_count_hist_weighted_avg = codon_count_hist_weighted_avg
         #print(p_codon_count_hist_weighted_avg)
+
+
     return p_codon_count_hist_weighted_avg
 
 def matchingRibosomeDistrib(ptRNA,pCodon):
@@ -809,12 +815,12 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=
     # Ribosome array index 0 is the cognate ribosome, which is bound for time react_time[0]
     # We account for near-cognate ternary complexes by assigning a physiologically accurate proportion of the react_time distribution to have the near cognate unbinding rate (k_nr_r) 
     k_r = 717
-    NR_tRNA = int(round(8/42*(42-(cogtRNANum-2)))) #Near-cognates make up 8/42 of ternary complexes on average (with 2 cognate ternary complexes on average)
-    NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
-    k_nr_r = 717
+    NR_tRNA = int(round(8/42*(42-(tRNA_cog-2)))) #Near-cognates make up 8/42 of ternary complexes on average (with 2 cognate ternary complexes on average)
+    NR_SCALINGFACTOR = 4.6/1.4 #computeNRLatency()/1.4 #computeNRLatency()/1.4 #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
+    k_nr_r = 717/NR_SCALINGFACTOR
     react_time = list()
     for i in range(rib_num):
-        if np.random() < NR_tRNA/42:
+        if np.random.rand() < NR_tRNA/(42-tRNA_cog):
             react_time.append(np.random.exponential(1000/k_nr_r))
         else:
             react_time.append(np.random.exponential(1000/k_r))
@@ -884,9 +890,15 @@ def eventbased_sim(rib_num=1,tRNA_cog=1,repeatAllowed=True,bias=1,repeatTracker=
                     return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog])
                 elif len(reactionIDTracker)>1000000:
                     return sys_t,rxns, tRNA_reaction[tRNA_bound[0]],sum(p_cogRib[0:tRNA_cog]),reactionIDTracker
-
-        ##Else, pick a mismatch reaction time for the newly bound tRNA
-        rxnt = np.random.exponential(1000/k_r)
+            else: #else assign cognate rejection time
+                rxnt = np.random.exponential(1000/k_r)
+        else:
+            ##Else, pick a mismatch reaction time for the newly bound tRNA -- can be near cog or non cog
+            if np.random.rand() < NR_tRNA/(42-tRNA_cog):
+                rxnt = np.random.exponential(1000/k_nr_r)
+            else:
+                rxnt = np.random.exponential(1000/k_r)
+        #rxnt = np.random.exponential(1000/k_r)
         react_time[next_rib] = rxnt
         tRNA_reaction[next_tRNA]+=rxnt
 
@@ -947,19 +959,21 @@ def countUnsuccesfulCognateReactions(path,simtime, num_rib,expt_start,expt_end,a
 def countIncorrectRepeatReactions(path,simtime, num_rib,expt_start,expt_end,avg=False,scaling=1):
     df_outputs = pd.read_csv(path+"outputReactionsList.txt",sep=" ",header=None) #Add batch processing here potentially
 
+    #rxn21 is the initial binding of a mismatching pair of ternary complex + ribosome
     rxn21_tot = list()
     for expt_num, row in df_outputs.iterrows():
         rxn21_count = 0
         if(expt_num>=expt_start and expt_num<expt_end):
             try:
-                #print(expt_num)
+                
                 my_cols=["time","rxn","x","y","z","reactantA","productA","productB","productC"]
                 df = pd.read_csv(path+row[0],delimiter=" ",header=None, names=my_cols)
+                #rxn22 is the unbinding of the non-cognate ternary complex from the ribosome
                 df=df.loc[df['rxn'].isin(["rxn22"])]
-                #print(df)
+                
 
                 df=df.loc[:,['time','productA','productB']]
-                #pd.set_option('display.max_rows', None)
+                
                 df = df.sort_values(['productA','time'], ascending=[True, True])
                 #print(df)
 

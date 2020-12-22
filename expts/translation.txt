@@ -115,7 +115,7 @@ reaction rxn17 tRNA_uni + ribosome_noreac -> ribosome_cog_uni
 binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn17 r1.r2
 
-reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 36875/1608733
+reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 147500/1608733
 
 ##Unsuccessful cognate reaction
 reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 286800/1608733
