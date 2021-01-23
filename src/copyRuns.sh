@@ -1,0 +1,31 @@
+aws s3 cp s3://s3smoldyn/data/210108_1534/ /Users/Akshay/Documents/TranslationDynamics/data/210108_1534/ --recursive
+aws s3 cp s3://s3smoldyn/data/210108_1605/ /Users/Akshay/Documents/TranslationDynamics/data/210108_1605/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1101/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1101/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1138/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1138/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1224/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1224/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1303/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1303/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1832/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1832/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_1918/ /Users/Akshay/Documents/TranslationDynamics/data/210109_1918/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_2134/ /Users/Akshay/Documents/TranslationDynamics/data/210109_2134/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_2219/ /Users/Akshay/Documents/TranslationDynamics/data/210109_2219/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_2301/ /Users/Akshay/Documents/TranslationDynamics/data/210109_2301/ --recursive
+aws s3 cp s3://s3smoldyn/data/210109_2335/ /Users/Akshay/Documents/TranslationDynamics/data/210109_2335/ --recursive
+aws s3 cp s3://s3smoldyn/data/210110_0007/ /Users/Akshay/Documents/TranslationDynamics/data/210110_0007/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_0055/ /Users/Akshay/Documents/TranslationDynamics/data/210111_0055/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_0126/ /Users/Akshay/Documents/TranslationDynamics/data/210111_0126/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_1535/ /Users/Akshay/Documents/TranslationDynamics/data/210111_1535/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_2047/ /Users/Akshay/Documents/TranslationDynamics/data/210111_2047/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_2152/ /Users/Akshay/Documents/TranslationDynamics/data/210111_2152/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_1703/ /Users/Akshay/Documents/TranslationDynamics/data/210111_1703/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_1618/ /Users/Akshay/Documents/TranslationDynamics/data/210111_1618/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_0124/ /Users/Akshay/Documents/TranslationDynamics/data/210112_0124/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_0205/ /Users/Akshay/Documents/TranslationDynamics/data/210112_0205/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_0233/ /Users/Akshay/Documents/TranslationDynamics/data/210112_0233/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_0309/ /Users/Akshay/Documents/TranslationDynamics/data/210112_0309/ --recursive
+aws s3 cp s3://s3smoldyn/data/210111_1747/ /Users/Akshay/Documents/TranslationDynamics/data/210111_1747/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_1307/ /Users/Akshay/Documents/TranslationDynamics/data/210112_1307/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_1339/ /Users/Akshay/Documents/TranslationDynamics/data/210112_1339/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_1410/ /Users/Akshay/Documents/TranslationDynamics/data/210112_1410/ --recursive
+aws s3 cp s3://s3smoldyn/data/210112_1654/ /Users/Akshay/Documents/TranslationDynamics/data/210112_1654/ --recursive
+
+

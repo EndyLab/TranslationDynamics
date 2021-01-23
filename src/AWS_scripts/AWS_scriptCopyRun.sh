@@ -4,7 +4,7 @@
 
 EXPLIST_PATH="/Users/Akshay/Documents/TranslationDynamics/expts/expt_list.txt" #Experiment_list contains new-line separated names of parameter files for each experiment
 KPATH="/Users/Akshay/Dropbox/code/akshay.pem"
-ipArray=(`aws ec2 describe-instances --filters Name=tag:expts,Values=gr3_a4xk_1_scaling50x_1to6| grep -i PublicIpAddress  | awk '{ print $2}' | cut -d',' -f1| sed -e 's/"//g'| tr . -`)
+ipArray=(`aws ec2 describe-instances --filters Name=tag:expts,Values=gr3_OR3_1to7_correctednewdiffOPcorr| grep -i PublicIpAddress  | awk '{ print $2}' | cut -d',' -f1| sed -e 's/"//g'| tr . -`)
 i=0
 dateformat=$(date +"%y%m%d"_%H%M)
 

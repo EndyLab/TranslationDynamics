@@ -107,7 +107,7 @@ reaction rxn6 tRNA_non + ribosome -> ribosome_non
 binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn6 r1.r2
 
-reaction rxn7 ribosome_non -> tRNA_non + ribosome
+reaction rxn7 ribosome_non -> tRNA_non + ribosome 430200/1608733
 product_placement rxn7 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn7 r1L + r1R 
 
@@ -115,10 +115,10 @@ reaction rxn17 tRNA_uni + ribosome_noreac -> ribosome_cog_uni
 binding_radius rxn17 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn17 r1.r2
 
-reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni
+reaction rxn18 ribosome_cog_uni -> ribosome_suc_uni 885000/1608733
 
 ##Unsuccessful cognate reaction
-reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac
+reaction rxn19 ribosome_cog_uni -> tRNA_uni + ribosome_noreac 430200/1608733
 product_placement rxn19 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn19 r1L + r1R
 
@@ -129,7 +129,7 @@ reaction rxn21 tRNA_uni + ribosome -> ribosome_non_uni
 binding_radius rxn21 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn21 r1.r2
 
-reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome
+reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 430200/1608733
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 r1L + r1R
 
@@ -137,7 +137,7 @@ reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
 binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
 reaction_serialnum rxn23 r1.r2
 
-reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac
+reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 430200/1608733
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn24 r1L + r1R 
 
@@ -187,28 +187,28 @@ reaction_log Z_outputReactions_ rxn24 all
 
 
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn6 0
-cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn7 0
+cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn7 0
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn17 0
-cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn18 0
-cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn19 0
+cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn18 0
+cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn19 0
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn21 0
-cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn22 0
+cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn22 0
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn23 0
-cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn24 0
+cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn24 0
 
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set difc tRNA* 1.0*1e-11
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set difc ribosome* 0.454545e-11
 cmd i Z_ts_rxnon_ Z_simtime_ Z_ts_delta_ set difc crowder 2.95e-11
 
 cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn6 1
-cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn7 430200/1608733
+cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn7 1
 cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn17 1
-cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn18 885000/1608733
-cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn19 430200/1608733
+cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn18 1
+cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn19 1
 cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn21 1
-cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn22 430200/1608733
+cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn22 1
 cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn23 1
-cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_rate rxn24 430200/1608733
+cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set reaction_probability rxn24 1
 
 
 cmd i Z_ts_diffon_ Z_simtime_ Z_ts_delta_ set difc tRNA* Z_D_tRNAEfTu_
