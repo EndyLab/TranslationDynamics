@@ -54,11 +54,17 @@ def f_tern(dbl_rate):
 	"""
 	tern_GrowthRate = np.array([0.4,0.7,1.07,1.6,2.5,3.0]+[0.4]*5)
 	ternaryComplexes = np.array([48000,57000,83000,143000,323000,383000]+[48000]*5)
+
+	## For supplemental figure: accounting for a single ternary complex occupied in P-site
+	#ribosomes = [8000,15000,26000,44000,61000,73000]
+	#ternaryComplexes = np.array([48000,57000,83000,143000,323000,383000]+[48000]*5) - ribosomes
+
 	tern_PolyFit = np.polyfit(tern_GrowthRate,ternaryComplexes,2)
 	
 	tern_i = dbl_rate**2*tern_PolyFit[0]+dbl_rate*tern_PolyFit[1]+tern_PolyFit[2]
 	
 	return tern_i
+
 
 def f_mass(dbl_rate):
 	"""
@@ -121,7 +127,7 @@ def f_nuc(dbl_rate):
 	return(nuc_i)
 
 
-def calcParams(rib_num,tern_num,cell_mass,cell_vol,nuc_volfrac): 
+def calcParams(rib_num,tern_num,cell_mass,cell_vol,nuc_volfrac,psite=False): 
 	"""
 	Transforms cell input parameters into cell dimensional/dimensionless paramters + into nucleoid-excluded voxel parameters. Presumably, parameters are 
 	all from an equivalent growth rate, though this is not neccessary, and cell/voxel parameters can be  calculated for any set of input cell parameters.
@@ -146,7 +152,10 @@ def calcParams(rib_num,tern_num,cell_mass,cell_vol,nuc_volfrac):
 	rib = Macromolecule(RIB_MASS, RIB_RAD,rib_num)
 	tern= Macromolecule(TERN_MASS,TERN_RAD, tern_num)
 	crowder = Macromolecule(CROWDER_MASS,CROWDER_RAD)
+	if psite==True:
+		tern.num = tern.num - rib.num
 	cell_i = Cell(cell_mass,cell_vol,rib,tern,crowder,nuc_volfrac)
+
 	vox_i = Voxel(42, cell_i)
 	
 	return cell_i.returnProperties(), vox_i.returnProperties()
