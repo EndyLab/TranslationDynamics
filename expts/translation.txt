@@ -85,23 +85,23 @@ frame_thickness 1
 
 reaction rxn1 tRNA* + tRNA* -> tRNA* + tRNA*
 binding_radius rxn1 tRNAEfTu_RAD+tRNAEfTu_RAD-(2.50*(10^-6))
-product_placement rxn1 bounce tRNAEfTu_RAD+tRNAEfTu_RAD
+product_placement rxn1 bounce
 
 reaction rxn2 ribosome* + ribosome* -> ribosome* + ribosome*
 binding_radius rxn2 ribosome_RAD+ribosome_RAD-(1.14*(10^-6))
-product_placement rxn2 bounce ribosome_RAD+ribosome_RAD
+product_placement rxn2 bounce
 
 reaction rxn3 crowder + ribosome* -> crowder + ribosome*
 binding_radius rxn3 ribosome_RAD+crowder_RAD-(1.97*(10^-6))
-product_placement rxn3 bounce ribosome_RAD+crowder_RAD
+product_placement rxn3 bounce
 
 reaction rxn4 tRNA* + crowder -> tRNA* + crowder
 binding_radius rxn4 tRNAEfTu_RAD+crowder_RAD-(3.73*(10^-6))
-product_placement rxn4 bounce tRNAEfTu_RAD+crowder_RAD
+product_placement rxn4 bounce
 
 reaction rxn5 crowder + crowder -> crowder + crowder
 binding_radius rxn5 crowder_RAD+crowder_RAD-(7.37*(10^-6))
-product_placement rxn5 bounce crowder_RAD+crowder_RAD
+product_placement rxn5 bounce
 
 reaction rxn6 tRNA_non + ribosome -> ribosome_non
 binding_radius rxn6 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
@@ -133,6 +133,9 @@ reaction rxn22 ribosome_non_uni -> tRNA_uni + ribosome 143400/1608733
 product_placement rxn22 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
 reaction_serialnum rxn22 r1L + r1R
 
+reaction rxn23 tRNA_non + ribosome_noreac -> ribosome_non_uni_1
+binding_radius rxn23 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
+reaction_serialnum rxn23 r1.r2
 
 reaction rxn24 ribosome_non_uni_1 -> tRNA_non + ribosome_noreac 143400/1608733
 product_placement rxn24 unbindrad (tRNAEfTu_RAD+ribosome_RAD)
@@ -142,14 +145,14 @@ reaction_serialnum rxn24 r1L + r1R
 
 reaction rxn14 tRNA* + ribosome* -> tRNA* + ribosome*
 binding_radius rxn14 tRNAEfTu_RAD+ribosome_RAD-(1.56*(10^-6))
-product_placement rxn14 bounce tRNAEfTu_RAD+ribosome_RAD
+product_placement rxn14 bounce
 
 tiff_iter 1
 tiff_name movie/translationSnap
 tiff_max 1
 graphic_iter 1
 
-output_file Z_outputMoleculePostRNA_ Z_outputMoleculePostRNA2_ Z_outputMoleculePosCrowder_ Z_outputReactions_ Z_outputSimtime_ Z_outputMoleculePosRibosome_
+output_file Z_outputMoleculePostRNA_ Z_outputMoleculePostRNA2_ Z_outputMoleculePosCrowder_ Z_outputReactions_ Z_outputSimtime_
 output_precision 1000
 
 #cmd @ Z_molPosTSStart_ set reaction_log Z_outputReactions_ rxn1 all
@@ -170,8 +173,9 @@ output_precision 1000
 #cmd @ Z_molPosTSStart_ set reaction_log Z_outputReactions_ rxn14 all
 #cmd @ Z_molPosTSEndReactionLog_ set reaction_log_off rxn14 all
 
-reaction_log Z_outputReactions_ rxn6 all
-reaction_log Z_outputReactions_ rxn7 all
+#reaction_log Z_outputReactions_ rxn6 all
+#reaction_log Z_outputReactions_ rxn7 all
+
 reaction_log Z_outputReactions_ rxn17 all
 reaction_log Z_outputReactions_ rxn18 all
 reaction_log Z_outputReactions_ rxn19 all
@@ -208,12 +212,12 @@ text_display time
 
 #cmd E pause
 
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all #Z_outputMoleculePostRNA_
-#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all #Z_outputMoleculePosCrowder_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp tRNA_non(all) all Z_outputMoleculePostRNA_
+cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ meansqrdisp crowder(all) all Z_outputMoleculePosCrowder_
 
-cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 tRNA*(all) Z_outputMoleculePostRNA_
-cmd i Z_molPosTSStartCrowder_ Z_simtime_ Z_molPosTS_ listmols3 crowder(all) Z_outputMoleculePostRNA_
-cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 ribosome*(all) Z_outputMoleculePostRNA_
+#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 tRNA_cog(all) Z_outputMoleculePostRNA_
+#cmd i Z_molPosTSStartCrowder_ Z_simtime_ Z_molPosTS_ listmols3 crowder(all) Z_outputMoleculePosCrowder_
+#cmd i Z_molPosTSStart_ Z_simtime_ Z_molPosTS_ listmols3 ribosome(all) Z_outputMoleculePosRibosome_
 
 cmd i Z_simtime_ Z_simtime_ Z_simtime_ executiontime Z_outputSimtime_
 text_display time

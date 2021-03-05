@@ -19,8 +19,8 @@ _ribosome_nr_NUM_ = 0
 _ribosome_non_NUM_ = 0
 _ribosome_suc_NUM_ = 0
 _ribosome_inac_NUM_ = 0
-_ribosome_noreac_NUM_ = 0
-_tRNA_uni_NUM_ = 0
+_ribosome_noreac_NUM_ = 1
+_tRNA_uni_NUM_ = 1
 
 _simtime_ = 1.6e-3*1e5+1000
 _molPosTS_ = 1e-04
@@ -52,34 +52,35 @@ _accuracy_ =10
 res_steps=3
 _ts_=0.1e-3
 _molPosTS_ = 1.6e-2*100
-crowders = np.array([1970,2096,1791,1418,1090,820,509,340,242,181,141,112,92])#crowders = np.array([1970,2096,1791,1418,1090,820])
-ribosomes = list([4,8,9,9,8,7,6,5,4,4,3,3,3]) #ribosomes = [4,8,9,9,8,7]
-side_len = list([0.101*1/0.0059,0.0929*1/0.0059,0.0842*1/0.0059,0.0774*1/0.0059,0.072*1/0.0059,0.0677*1/0.0059,0.0612*1/0.0059,0.0565*1/0.0059,0.0529*1/0.0059,0.0501*1/0.0059,0.0477*1/0.0059,0.0458*1/0.0059,0.0441*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
-cog_tRNA = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0])
-non_cog_tRNA = np.array([42,42,42,42,42,42,42,42,42,42,42,42,42])
+crowders = np.array([820,820,820,820,820,820,820,820,820])#crowders = np.array([1970,2096,1791,1418,1090,820])
+ribosomes = list([7-1,7-1,7-1,7-1,7-1,7-1,7-1,7-1,7-1]) #ribosomes = [4,8,9,9,8,7]
+side_len = list([0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059,0.0677*1/0.0059]) #sidelen = [0.101,0.0929,0.0842,0.0774,0.072,0.0677]
+cog_tRNA = np.array([7,8,9,10,11,12,13,14,15])
+non_cog_tRNA = np.array([42-7,42-8,42-9,42-10,42-11,42-12,42-13,42-14,42-15])
 _molPosTSStartCrowder_ =1000
+
 
 phi_sweep = list()
 for i in range(len(crowders)):
     phi_sweep.append((crowders[i],ribosomes[i],side_len[i],cog_tRNA[i]))
 
 i_max = 1
-k_max= 13
+k_max= 9
 j_max= 100
 for i in range(i_max):
 	for k in range (0, k_max):
 		_crowder_NUM_ = phi_sweep[k][0]
-		_ribosome_noreac_NUM_ = phi_sweep[k][1]
+		_ribosome_NUM_ = phi_sweep[k][1]
 		_side_len_ = phi_sweep[k][2]
 		_tRNA_uni_NUM_ = phi_sweep[k][3]
 		_tRNA_non_NUM_ = non_cog_tRNA[k]
 
-		_molPosTSStart_ = 10
+		_molPosTSStart_ = 20
 		_molPosTSEndReactionLog_ = 20+_ts_*res_steps*2 
 		_ts_rxnon_ = 0
 		_ts_diffon_= _ts_*(res_steps-1)
 		_ts_delta_= _ts_*res_steps
-		_simtime_ = 10
+		_simtime_ = 1.6e7
 
 		for j in range(0, j_max):
 			_seed_ = _seed_list[j]
