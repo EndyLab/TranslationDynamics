@@ -760,7 +760,7 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
             search_var_list.append(np.array(search_var))
             
             search_list.append(np.array(gr[gr_i][i].searchT)*1000/1608733)
-            print('Unweighted search time (', str(i), ' cognate)', np.array(search_vals/p_codon_count_hist_weighted_avg[i]))
+            #print('Unweighted search time (', str(i), ' cognate)', np.array(search_vals/p_codon_count_hist_weighted_avg[i]))
         transport_phi.append(np.sum(transport_vals_list))
         reaction_phi.append(np.sum(reaction_vals_list))
         search_phi.append(np.sum(search_vals_list))
@@ -769,9 +769,9 @@ def transportRxnCalc(gr, ptRNA, pCodon,bias=1):
         rxn_std_phi.append(np.sqrt(np.sum(rxn_var_list)))
         search_std_phi.append(np.sqrt(np.sum(search_var_list)))
 
-    print("Transport time: ", transport_phi, " +/- ", transport_std_phi)
-    print("Reaction time: ", reaction_phi, " +/- ", rxn_std_phi)
-    print("Search time: ", search_phi, " +/- ", search_std_phi)
+    #print("Transport time: ", transport_phi, " +/- ", transport_std_phi)
+    #print("Reaction time: ", reaction_phi, " +/- ", rxn_std_phi)
+    #print("Search time: ", search_phi, " +/- ", search_std_phi)
     
     return search_list,transport_phi, reaction_phi, search_phi, transport_std_phi,rxn_std_phi,search_std_phi
 
