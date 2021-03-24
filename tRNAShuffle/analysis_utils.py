@@ -417,7 +417,7 @@ def computeNRLatency(NR_scaling = {'k1r':718,'k2f':1475,'k2r_nr':1120,'k3_nr':6,
                     
     return np.mean(dwelltime_nr_fail)
 
-def cognateDistrib(ptRNA,pCodon, extra = False):
+def cognateDistrib(ptRNA,pCodon, extra = False,extra2=False):
 
     ptRNA = np.divide(ptRNA,sum(ptRNA))
     pCodon= np.divide(pCodon, sum(pCodon))
@@ -450,9 +450,21 @@ def cognateDistrib(ptRNA,pCodon, extra = False):
     'CAA': ['Gln1'], 'CAU': ['His'], 'CAC': ['His'], 'CUG': ['Leu1','Leu3'], \
     'CUA': ['Leu3'], 'CUU': ['Leu2'], 'CUC': ['Leu2'], 'CCG': ['Pro1','Pro3'], \
     'CCA': ['Pro3'], 'CCU': ['Pro2','Pro3'], 'CCC': ['Pro2']}
-
+    
+    tRNA_dict = {'Ala1B': ['GCU', 'GCA', 'GCG'], 'Ala2': ['GCC'],'Arg2': ['CGU','CGC','CGA'], \
+    'Arg3': ['CGG'], 'Arg4':['AGA'], 'Arg5': ['AGG'], 'Asn':['AAC','AAU'], 'Asp1': ['GAC','GAU'], \
+    'Cys':['UGC','UGU'], 'Gln1':['CAA'], 'Gln2':['CAG'], 'Glu2': ['GAA', 'GAG'], 'Gly2':['GGA','GGG'], \
+    'Gly3':['GGC','GGU'], 'His':['CAC','CAU'], 'Ile1': ['AUC','AUU'],'Leu1':['CUG'],'Leu2':['CUC','CUU'], \
+    'Leu3': ['CUA','CUG'], 'Leu4': ['UUG'], 'Leu5': ['UUA', 'UUG'], 'Lys':['AAA', 'AAG'], 'Met_m':['AUG'], \
+    'Phe': ['UUC', 'UUU'], 'Pro1': ['CCG'], 'Pro2': ['CCC','CCU'], 'Pro3': ['CCA', 'CCU', 'CCG'], \
+    'Sec': ['UGA'], 'Ser1': ['UCA','UCU','UCG'], 'Ser2': ['UCG'], 'Ser3': ['AGC','AGU'], 'Ser5':['UCC', 'UCU'], \
+    'Thr1':['ACC', 'ACU'], 'Thr2':['ACG'], 'Thr3':['ACC','ACU'], 'Thr4':['ACA','ACU','ACG'],'Trp':['UGG'], \
+    'Tyr1pTyr2':['UAC','UAU'], 'Val1': ['GUA','GUG','GUU'], 'Val2ApB': ['GUC','GUU']}
     if extra:
         return ptRNA_dict, pcodon_dict, codon_dict, codonLabels, pCodon
+    if extra2:
+        return ptRNA_dict, pcodon_dict, codon_dict, codonLabels, pCodon, tRNA_dict
+
 
     cells = 1
     voxels = 10000
