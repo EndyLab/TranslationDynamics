@@ -1,1 +1,0 @@
-aws s3 cp s3://s3smoldyn/data/$1 /Users/Akshay/Documents/TranslationDynamics/data/$1 --recursive
