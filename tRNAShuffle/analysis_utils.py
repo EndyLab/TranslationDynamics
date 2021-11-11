@@ -265,7 +265,7 @@ def computeTransportRxnTimes(path,simtime, num_rib,expt_start,expt_end,avg=False
     ribosome_reaction_time = list()
     print("Computing...") 
     NR_tRNA = int(round(8/42*(42-(cogtRNANum-2))))+(ribosomeNum-1) #Non-matching ribosomes make up the first ribosomeNum-1 labels
-    NR_SCALINGFACTOR = computeNRLatency(NR_scaling)/(1000/NR_scaling['k1r']) #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
+    NR_SCALINGFACTOR = 3.2 #computeNRLatency(NR_scaling)/(1000/NR_scaling['k1r']) #Scaling factor for how much slower near cognate mismatch reactions are compared to non cognate mismatches
     reactantarray = list()
     #scaling = scaling*(8/40*4.6+32/40*1.4)/1.4 ##Adjust scaling to account for near-cognate ternary complexes
     for expt_num, row in df_outputs.iterrows():
